@@ -4,21 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulador de Trading - CryptoSim</title>
-
-    <!-- Favion -->
     <link rel="icon" type="image/png" href="bitcoin.png">
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-
-    <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- CSS Personalizado -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="trading.css">
 </head>
 <body>
-    <!-- Barra de navegación -->
     <nav class="navbar">
         <div class="container">
             <a class="navbar-brand" href="index.html"><i class="fa-brands fa-bitcoin"></i> CryptoSim</a>
@@ -29,174 +20,125 @@
         </div>
     </nav>
 
-    <div class="container-fluid mt-4">
-        <div class="row">
-            
-            <!-- COLUMNA IZQUIERDA: GRÁFICO GRANDE -->
-            <div class="col-lg-8">
-                <div class="chart-container-large">
-                    
-                    <!-- SELECTOR DE CRIPTOMONEDA -->
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2>
-                            <i class="fas fa-chart-area"></i> 
-                            Análisis en Tiempo Real
-                        </h2>
-                        
-                        <select id="selector-cripto" class="form-select form-select-lg w-auto">
-                            <!-- JavaScript llenará esto con las opciones -->
-                            <option value="0">Bitcoin (BTC)</option>
-                            <option value="1">Ethereum (ETH)</option>
-                            <option value="2">BNB (BNB)</option>
-                            <option value="3">Solana</option>
-                            <option value="4">DogeCoin</option>
-                        </select>
-                    </div>
-                    
-                    <!-- PRECIO ACTUAL EN GRANDE -->
-                    <div class="precio-destacado mb-4">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <h3 class="text-muted mb-1" id="nombre-cripto-actual">SMRCoin</h3>
-                                <div class="precio-grande" id="precio-actual">2,500.00 €</div>
-                            </div>
-                            <div class="text-end">
-                                <div class="cambio-porcentaje" id="cambio-porcentaje">
-                                    <i class="fas fa-arrow-up"></i> +2.34%
-                                </div>
-                                <small class="text-muted">Últimas 24h</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- GRÁFICO -->
-                    <canvas id="chartSimulador" height="400"></canvas>
-                    
-                    <!-- ESTADÍSTICAS RÁPIDAS -->
-                    <div class="row mt-4 text-center">
-                        <div class="col-3">
-                            <div class="stat-box">
-                                <small class="text-muted">Precio Alto</small>
-                                <div class="stat-value" id="precio-alto">2,650.00 €</div>
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <div class="stat-box">
-                                <small class="text-muted">Precio Bajo</small>
-                                <div class="stat-value" id="precio-bajo">2,350.00 €</div>
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <div class="stat-box">
-                                <small class="text-muted">Variación</small>
-                                <div class="stat-value" id="variacion">+58.50 €</div>
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <div class="stat-box">
-                                <small class="text-muted">Volatilidad</small>
-                                <div class="stat-value" id="volatilidad">Media</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- COLUMNA DERECHA: PANEL DE TRADING -->
-            <div class="col-lg-4">
-                
-                <!-- TU SALDO -->
-                <div class="trading-panel mb-3">
-                    <h5><i class="fas fa-wallet"></i> Tu Saldo</h5>
-                    <div class="saldo-trading" id="saldo-trading">100,000.00 €</div>
-                </div>
-                
-                <!-- TUS HOLDINGS DE ESTA CRIPTO -->
-                <div class="trading-panel mb-3">
-                    <h5><i class="fas fa-coins"></i> Tus Holdings</h5>
-                    <div class="holdings-info">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Cantidad:</span>
-                            <strong id="cantidad-holdings">0.0000</strong>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Valor Total:</span>
-                            <strong class="text-success" id="valor-holdings">0.00 €</strong>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- BOTONES DE COMPRA/VENTA -->
-                <div class="trading-panel mb-3">
-                    <h5><i class="fas fa-exchange-alt"></i> Operar</h5>
-                    
-                    <button class="btn btn-comprar w-100 mb-3" onclick="abrirModalCompra()">
-                        <i class="fas fa-arrow-up"></i> COMPRAR
-                    </button>
-                    
-                    <button class="btn btn-vender w-100" onclick="abrirModalVenta()">
-                        <i class="fas fa-arrow-down"></i> VENDER
-                    </button>
-                </div>
-                
-                <!-- CALCULADORA RÁPIDA -->
-                <div class="trading-panel mb-3">
-                    <h5><i class="fas fa-calculator"></i> Calculadora</h5>
-                    <div class="calculadora">
-                        <div class="mb-3">
-                            <label class="form-label">Cantidad a operar:</label>
-                            <input type="number" 
-                                   class="form-control" 
-                                   id="calc-cantidad" 
-                                   placeholder="0.0001"
-                                   step="0.0001"
-                                   min="0">
-                        </div>
-                        <div class="resultado-calc">
-                            <span>Coste Total:</span>
-                            <strong id="calc-total">0.00 €</strong>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- HISTORIAL DE OPERACIONES -->
-                <div class="trading-panel">
-                    <h5><i class="fas fa-history"></i> Últimas Operaciones</h5>
-                    <div class="historial-operaciones" id="historial-operaciones">
-                        <small class="text-muted">No hay operaciones recientes</small>
-                    </div>
-                </div>
-                
-            </div>
-            
-        </div>
+    <div id="loader" style="display: none;">
+        <div class="spinner-border text-warning"></div>
+        <p class="mt-3">Cargando mercado...</p>
     </div>
-    
-    <!-- LIBRERÍAS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
-    
-    <!-- TU JAVASCRIPT -->
-    <script src="script.js"></script>
-    
-    <!-- JavaScript específico del simulador -->
-    <script>
-        // Cuando cambie el selector, actualizar la vista
-        document.getElementById('selector-cripto').addEventListener('change', function() {
-            const indice = parseInt(this.value);
-            actualizarVistaSimulador(indice);
-        });
-        
-        // Cuando cambie la cantidad en calculadora, actualizar el total
-        document.getElementById('calc-cantidad').addEventListener('input', function() {
-            calcularTotal();
-        });
-        
-        // Inicializar vista al cargar la página
-        window.addEventListener('load', function() {
-            actualizarVistaSimulador(0); // Mostrar primera cripto por defecto
-        });
-    </script>
 
+    <div class="trading-layout">
+        
+        <div class="trading-header">
+            <select id="selector-cripto" class="crypto-selector">
+                </select>
+            
+            <div class="precio-header" id="precio-header">$0.00</div>
+            <div class="cambio-header cambio-positivo" id="cambio-header">+0.00%</div>
+            
+            <div class="ms-auto">
+                <button class="btn btn-sm btn-outline-warning" onclick="window.location.href='index.html'">
+                    <i class="fas fa-home"></i> Inicio
+                </button>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="resetearApp()">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </div>
+        
+        <div class="orderbook-panel">
+            <h6 class="mb-3">Mis Órdenes</h6>
+            
+            <div class="orderbook-header">
+                <span>Tipo</span>
+                <span>Precio</span>
+                <span>Cant.</span>
+            </div>
+            
+            <div id="historial-panel-izquierdo">
+                <p class="text-muted text-center small mt-4">No hay órdenes recientes</p>
+            </div>
+        </div>
+        
+        <div class="chart-main">
+            <div class="chart-controls">
+                <button class="btn-timeframe active" onclick="cambiarTemporalidadBinance('30m')">30m</button>
+                <button class="btn-timeframe" onclick="cambiarTemporalidadBinance('1h')">1H</button>
+                <button class="btn-timeframe" onclick="cambiarTemporalidadBinance('4h')">4H</button>
+                <button class="btn-timeframe" onclick="cambiarTemporalidadBinance('1d')">Diario</button>
+                <button class="btn-timeframe" onclick="cambiarTemporalidadBinance('1w')">Semanal</button>
+            </div>
+            
+            <div class="chart-container-trading">
+                <div id="chartTrading" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+        
+        <div class="trading-panel-right">
+            <h6 class="mb-3">Trading</h6>
+            
+            <div class="balance-info">
+                <div class="balance-row">
+                    <span class="balance-label">Saldo disponible:</span>
+                    <span class="balance-value" id="saldo-disponible">$10,000.00</span>
+                </div>
+                
+                <div class="balance-row">
+                    <span class="balance-label">Patrimonio Total:</span>
+                    <span class="balance-value text-primary fw-bold" id="balance-total-cuenta">$10,000.00</span>
+                </div>
+
+                <hr style="border-color: #484d56; margin: 10px 0;">
+
+                <div class="balance-row">
+                    <span class="balance-label">Holdings (<span id="simbolo-holding">BTC</span>):</span>
+                    <span class="balance-value" id="holdings-actual">0.000000</span>
+                </div>
+                <div class="balance-row">
+                    <span class="balance-label">Valor en USD:</span>
+                    <span class="balance-value text-success" id="valor-total">$0.00</span>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <h6 class="text-success mb-3">Comprar</h6>
+                <div class="input-group-exchange">
+                    <label>Precio (USD)</label>
+                    <input type="number" id="precio-compra" placeholder="Precio actual" readonly>
+                </div>
+                <div class="input-group-exchange">
+                    <label>Cantidad</label>
+                    <input type="number" id="cantidad-compra" placeholder="0.00000000" step="0.00000001">
+                </div>
+                <div class="input-group-exchange">
+                    <label>Total (USD)</label>
+                    <input type="number" id="total-compra" placeholder="0.00">
+                </div>
+                <button class="btn-buy-exchange" onclick="ejecutarCompraRapida()">
+                    Comprar <span id="simbolo-compra">BTC</span>
+                </button>
+            </div>
+            
+            <div>
+                <h6 class="text-danger mb-3">Vender</h6>
+                <div class="input-group-exchange">
+                    <label>Precio (USD)</label>
+                    <input type="number" id="precio-venta" placeholder="Precio actual" readonly>
+                </div>
+                <div class="input-group-exchange">
+                    <label>Cantidad</label>
+                    <input type="number" id="cantidad-venta" placeholder="0.00000000" step="0.00000001">
+                </div>
+                <div class="input-group-exchange">
+                    <label>Total (USD)</label>
+                    <input type="number" id="total-venta" placeholder="0.00">
+                </div>
+                <button class="btn-sell-exchange" onclick="ejecutarVentaRapida()">
+                    Vender <span id="simbolo-venta">BTC</span>
+                </button>
+            </div>
+        </div>
+    </div> 
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -1,0 +1,549 @@
+/* ============================================
+   TRADING VIEW - ESTILO BINANCE
+   ============================================ */
+
+/* Layout tipo Exchange */
+body {
+    background: #0b0e11;
+    color: #eaecef;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Layout tipo Exchange */
+.trading-layout {
+    display: grid;
+    /* Antes: grid-template-rows: 60px 1fr 280px; */
+    /* Ahora: Solo 2 filas (header y contenido), sin panel inferior */
+    grid-template-rows: 60px 1fr; 
+    grid-template-columns: 280px 1fr 320px;
+    height: 100vh;
+    gap: 1px;
+    background: #1e2329;
+}
+
+.navbar-brand {
+    color: white;
+}
+
+.navbar-brand:hover {
+    color: white;
+}
+
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.trading-header {
+    grid-column: 1 / -1;
+    background: #181a20;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid #2b3139;
+}
+
+.crypto-selector {
+    background: #2b3139;
+    border: none;
+    color: #eaecef;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.crypto-selector:hover {
+    background: #3d4450;
+}
+
+.crypto-selector:focus {
+    outline: 2px solid #fcd535;
+}
+
+.crypto-selector option {
+    background: #2b3139;
+    color: #eaecef;
+}
+
+.precio-header {
+    margin-left: 20px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #eaecef;
+}
+
+.cambio-header {
+    margin-left: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.cambio-positivo {
+    background: #0ecb81;
+    color: #000;
+}
+
+.cambio-negativo {
+    background: #f6465d;
+    color: #fff;
+}
+
+/* ============================================
+   COLUMNA IZQUIERDA - LIBRO DE ÓRDENES
+   ============================================ */
+
+.orderbook-panel {
+    background: #181a20;
+    padding: 15px;
+    overflow-y: auto;
+    border-right: 1px solid #2b3139;
+}
+
+.orderbook-panel h6 {
+    color: #eaecef;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.orderbook-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #848e9c;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #2b3139;
+}
+
+.orderbook-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 3px 0;
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+}
+
+.orderbook-row:hover {
+    background: rgba(43, 49, 57, 0.3);
+}
+
+.precio-venta {
+    color: #f6465d;
+    font-weight: 600;
+}
+
+.precio-compra {
+    color: #0ecb81;
+    font-weight: 600;
+}
+
+/* ============================================
+   COLUMNA CENTRO - GRÁFICO
+   ============================================ */
+
+.chart-main {
+    background: #181a20;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #2b3139;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    gap: 5px;
+    border-bottom: 1px solid #2b3139;
+    flex-wrap: wrap;
+}
+
+.btn-timeframe {
+    background: transparent;
+    border: none;
+    color: #848e9c;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.btn-timeframe:hover {
+    background: #2b3139;
+    color: #eaecef;
+}
+
+.btn-timeframe.active {
+    background: #2b3139;
+    color: #fcd535;
+    font-weight: 700;
+}
+
+.chart-container-trading {
+    flex: 1;
+    position: relative;
+    padding: 10px 15px;
+    overflow: hidden;
+    min-height: 0;
+    width: 100%;
+
+    /* Mantener el flexbox para asegurar centrado */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#chartTrading {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+}
+
+/* ============================================
+   COLUMNA DERECHA - PANEL DE TRADING
+   ============================================ */
+
+.trading-panel-right {
+    background: #181a20;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.trading-panel-right h6 {
+    color: #eaecef;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.balance-info {
+    background: #2b3139;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.balance-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+}
+
+.balance-row:last-child {
+    margin-bottom: 0;
+}
+
+.balance-label {
+    color: #848e9c;
+}
+
+.balance-value {
+    color: #eaecef;
+    font-weight: 600;
+}
+
+/* ============================================
+   PANEL INFERIOR - ÓRDENES
+   ============================================ */
+
+.orders-panel {
+    grid-column: 1 / -1;
+    background: #181a20;
+    border-top: 1px solid #2b3139;
+    display: flex;
+    flex-direction: column;
+}
+
+.orders-tabs {
+    display: flex;
+    gap: 20px;
+    padding: 15px 20px;
+    border-bottom: 1px solid #2b3139;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #848e9c;
+    padding: 5px 0;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: #eaecef;
+}
+
+.tab-btn.active {
+    color: #fcd535;
+    border-bottom-color: #fcd535;
+}
+
+.orders-content {
+    padding: 15px 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* ============================================
+   FORMULARIOS DE TRADING
+   ============================================ */
+
+.input-group-exchange {
+    margin-bottom: 15px;
+}
+
+.input-group-exchange label {
+    display: block;
+    color: #848e9c;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.input-group-exchange input {
+    width: 100%;
+    background: #2b3139;
+    border: 1px solid #2b3139;
+    color: #eaecef;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.input-group-exchange input:focus {
+    outline: none;
+    border-color: #fcd535;
+    background: #1e2329;
+}
+
+.input-group-exchange input::placeholder {
+    color: #5e6673;
+}
+
+.input-group-exchange input[readonly] {
+    background: #1e2329;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   BOTONES DE COMPRA/VENTA
+   ============================================ */
+
+.btn-buy-exchange {
+    background: #0ecb81;
+    color: #000;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn-buy-exchange:hover {
+    background: #12d88a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 203, 129, 0.4);
+}
+
+.btn-buy-exchange:active {
+    transform: translateY(0);
+}
+
+.btn-sell-exchange {
+    background: #f6465d;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn-sell-exchange:hover {
+    background: #f7506e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(246, 70, 93, 0.4);
+}
+
+.btn-sell-exchange:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #181a20;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2b3139;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3d4450;
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+
+.text-success {
+    color: #0ecb81 !important;
+}
+
+.text-danger {
+    color: #f6465d !important;
+}
+
+.text-muted {
+    color: #848e9c !important;
+}
+
+.text-warning {
+    color: #fcd535 !important;
+}
+
+/* ============================================
+   LOADER
+   ============================================ */
+
+#loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(11, 14, 17, 0.95);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    flex-direction: column;
+}
+
+#loader .spinner-border {
+    border-color: #fcd535;
+    border-right-color: transparent;
+}
+
+#loader p {
+    color: #eaecef;
+    margin-top: 15px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1400px) {
+    .trading-layout {
+        grid-template-columns: 250px 1fr 280px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .trading-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 60px 1fr 250px;
+    }
+    
+    .orderbook-panel,
+    .trading-panel-right {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .precio-header {
+        font-size: 1.2rem;
+    }
+    
+    .cambio-header {
+        font-size: 0.8rem;
+    }
+    
+    .chart-controls {
+        padding: 8px 10px;
+        gap: 3px;
+    }
+    
+    .btn-timeframe {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+    }
+    
+    .orders-panel {
+        grid-template-rows: auto 1fr;
+    }
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.trading-layout {
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Efecto de actualización de precios */
+@keyframes priceUpdate {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.precio-header.updating {
+    animation: priceUpdate 0.5s ease-in-out;
+}
+
+/* trading.css - Al final del archivo */
+
+/* Eliminar flechas/spinners en Chrome, Safari, Edge, Opera */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
