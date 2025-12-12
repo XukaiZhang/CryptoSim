@@ -16,8 +16,8 @@ let saldoUsuario = 10000;
 let holdings = {};
 let datosCriptos = {};
 let historialOperaciones = [];
-let chartSimuladorInstance = null; // Instancia de ApexCharts
-let temporalidadActual = '30m';    // Por defecto 30 minutos (Binance)
+let chartSimuladorInstance = null;
+let temporalidadActual = '30m';
 
 // Inicializar holdings a 0 si es la primera vez
 criptos.forEach(cripto => {
@@ -34,7 +34,7 @@ function guardarDatos() {
         datosCriptos: datosCriptos,
         historialOperaciones: historialOperaciones
     }));
-    actualizarSaldoTotalCuenta(); // Recalcular total al guardar
+    actualizarSaldoTotalCuenta();
 }
 
 function cargarDatos() {
@@ -48,10 +48,23 @@ function cargarDatos() {
 }
 
 function resetearApp() {
-    if (confirm('¿Borrar todos los datos y reiniciar la cuenta a $10,000?')) {
-        localStorage.removeItem('cryptosim-data');
-        location.reload();
-    }
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Se borrarán todos los datos y tu cuenta volverá a $10,000",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#0ecb81',
+        cancelButtonColor: '#f6465d',
+        confirmButtonText: 'Sí, resetear',
+        cancelButtonText: 'Cancelar',
+        background: '#181a20',
+        color: '#eaecef'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem('cryptosim-data');
+            location.reload();
+        }
+    });
 }
 
 // ============================================
@@ -67,12 +80,25 @@ function mostrarCarga(mostrar = true) {
 }
 
 // ============================================
+// OBTENER NOMBRE DE TEMPORALIDAD
+// ============================================
+function obtenerNombreTemporalidad(intervalo) {
+    const nombres = {
+        '30m': '30 minutos',
+        '1h': '1 hora',
+        '4h': '4 horas',
+        '1d': '1 día',
+        '1w': '1 semana'
+    };
+    return nombres[intervalo] || intervalo;
+}
+
+// ============================================
 // LÓGICA DE PRECIOS (CoinGecko para Panel)
 // ============================================
 async function obtenerPreciosSimples() {
     try {
         const ids = criptos.map(c => c.id).join(',');
-        // Usamos CoinGecko para el precio actual del panel (header) porque es más fácil manejar múltiples IDs
         const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
 
         const res = await fetch(url);
@@ -88,11 +114,10 @@ async function obtenerPreciosSimples() {
             }
         });
         
-        // Actualizar UI del simulador si estamos en esa página
         const selector = document.getElementById('selector-cripto');
         if (selector) {
             actualizarVistaSimulador(selector.value);
-            actualizarSaldoTotalCuenta(); // Actualizar patrimonio total
+            actualizarSaldoTotalCuenta();
         }
 
     } catch (error) {
@@ -108,8 +133,6 @@ async function obtenerDatosBinance(criptoId, intervalo) {
     if (!cripto || !cripto.binanceSymbol) return [];
 
     try {
-        // CAMBIO AQUÍ: Cambiamos limit=100 a limit=50
-        // Esto hace "zoom" natural mostrando menos velas pero más recientes y grandes.
         const url = `https://api.binance.com/api/v3/klines?symbol=${cripto.binanceSymbol}&interval=${intervalo}&limit=50`;
         
         const res = await fetch(url);
@@ -128,7 +151,6 @@ async function obtenerDatosBinance(criptoId, intervalo) {
 async function actualizarGraficoTrading(criptoId, intervalo) {
     const contenedor = document.getElementById('chartTrading');
     
-    // Verificaciones de seguridad
     if (!contenedor) return;
     if (typeof ApexCharts === 'undefined') {
         contenedor.innerHTML = '<p class="text-danger text-center mt-5">Error: Librería ApexCharts no cargada.</p>';
@@ -139,34 +161,34 @@ async function actualizarGraficoTrading(criptoId, intervalo) {
     if (!seriesData.length) return;
 
     // ============================================================
-    // NUEVO: CÁLCULO DE PORCENTAJE SEGÚN TEMPORALIDAD
+    // CÁLCULO DE PORCENTAJE SEGÚN TEMPORALIDAD SELECCIONADA
     // ============================================================
     
-    // 1. Obtener precio inicial (Open de la primera vela visible)
+    // Precio inicial = Open de la primera vela
     const precioInicial = seriesData[0].y[0]; 
     
-    // 2. Obtener precio final (Close de la última vela visible / precio actual)
+    // Precio final = Close de la última vela (precio actual)
     const precioFinal = seriesData[seriesData.length - 1].y[3];
     
-    // 3. Calcular porcentaje
+    // Calcular porcentaje de cambio
     const porcentajeCambio = ((precioFinal - precioInicial) / precioInicial) * 100;
 
-    // 4. Actualizar el DOM (Header)
+    // Actualizar el header con el porcentaje correcto
     const cambioEl = document.getElementById('cambio-header');
     if (cambioEl) {
         const signo = porcentajeCambio >= 0 ? '+' : '';
         cambioEl.textContent = `${signo}${porcentajeCambio.toFixed(2)}%`;
         
-        // Actualizar color (Verde o Rojo)
+        // Color verde o rojo según el cambio
         cambioEl.className = 'cambio-header ' + (porcentajeCambio >= 0 ? 'cambio-positivo' : 'cambio-negativo');
     }
     
-    // También actualizamos el precio grande del header para que coincida exactamente con la gráfica
+    // Actualizar precio en el header
     const precioHeader = document.getElementById('precio-header');
     if(precioHeader) precioHeader.textContent = formatearDinero(precioFinal);
 
     // ============================================================
-    // FIN CÁLCULO
+    // RENDERIZAR GRÁFICA
     // ============================================================
 
     // Destruir gráfica anterior si existe
@@ -181,7 +203,7 @@ async function actualizarGraficoTrading(criptoId, intervalo) {
         }],
         chart: {
             type: 'candlestick',
-            height: '80%', // Altura fija
+            height: '80%',
             background: 'transparent',
             toolbar: { show: false },
             animations: { enabled: false }
@@ -239,11 +261,9 @@ async function actualizarGraficoTrading(criptoId, intervalo) {
 function cambiarTemporalidadBinance(intervalo) {
     temporalidadActual = intervalo;
     
-    // Actualizar botones (clase active)
     document.querySelectorAll('.btn-timeframe').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active'); // El botón pulsado se pone activo
+    event.target.classList.add('active');
     
-    // Recargar gráfica
     const criptoId = document.getElementById('selector-cripto').value;
     actualizarGraficoTrading(criptoId, intervalo);
 }
@@ -251,10 +271,9 @@ function cambiarTemporalidadBinance(intervalo) {
 // ============================================
 // INTERFAZ DE USUARIO (Simulador)
 // ============================================
-
 function actualizarSaldoTotalCuenta() {
     let valorInvertido = 0;
-    // Calcular cuánto valen mis criptos
+    
     criptos.forEach(c => {
         const cantidad = holdings[c.id] || 0;
         const precio = datosCriptos[c.id] ? datosCriptos[c.id].precio : 0;
@@ -263,7 +282,6 @@ function actualizarSaldoTotalCuenta() {
 
     const patrimonioTotal = saldoUsuario + valorInvertido;
 
-    // Actualizar el DOM
     const elTotal = document.getElementById('balance-total-cuenta');
     if (elTotal) elTotal.textContent = formatearDinero(patrimonioTotal);
 }
@@ -274,28 +292,23 @@ async function actualizarVistaSimulador(criptoId) {
     
     if (!cripto || !datos) return;
 
-    // 1. Header Superior
     document.getElementById('precio-header').textContent = formatearDinero(datos.precio);
-    const cambioEl = document.getElementById('cambio-header');
-    cambioEl.textContent = (datos.cambio24h > 0 ? '+' : '') + datos.cambio24h.toFixed(2) + '%';
-    cambioEl.className = 'cambio-header ' + (datos.cambio24h > 0 ? 'cambio-positivo' : 'cambio-negativo');
-
-    // 2. Panel Derecho (Saldos)
+    
+    // Nota: El porcentaje del header se actualiza en actualizarGraficoTrading()
+    // según la temporalidad seleccionada
+    
     document.getElementById('saldo-disponible').textContent = formatearDinero(saldoUsuario);
-    document.getElementById('holdings-actual').textContent = holdings[criptoId].toFixed(6); // Cantidad
-    document.getElementById('simbolo-holding').textContent = cripto.simbolo; // Simbolo pequeño
+    document.getElementById('holdings-actual').textContent = holdings[criptoId].toFixed(6);
+    document.getElementById('simbolo-holding').textContent = cripto.simbolo;
 
     const valorHoldings = holdings[criptoId] * datos.precio;
     document.getElementById('valor-total').textContent = formatearDinero(valorHoldings);
     
-    // Valor estimado para venta
     const estimadoEl = document.getElementById('valor-venta-estimado');
     if(estimadoEl) estimadoEl.textContent = formatearDinero(valorHoldings);
 
-    // Actualizar Patrimonio Total
     actualizarSaldoTotalCuenta();
 
-    // 3. Inputs de Compra/Venta
     document.getElementById('precio-compra').value = datos.precio;
     document.getElementById('precio-venta').value = datos.precio;
     document.getElementById('simbolo-compra').textContent = cripto.simbolo;
@@ -304,39 +317,31 @@ async function actualizarVistaSimulador(criptoId) {
     renderizarHistorialIzquierdo();
 }
 
-
 // ============================================
-// LISTENERS INTELIGENTES (Cálculo Bidireccional)
+// LISTENERS INTELIGENTES
 // ============================================
-
 ['compra', 'venta'].forEach(tipo => {
     const inputCantidad = document.getElementById('cantidad-' + tipo);
     const inputTotal = document.getElementById('total-' + tipo);
 
-    // 1. Si escribo CANTIDAD -> Calcula Total
     inputCantidad?.addEventListener('input', function() {
         const id = document.getElementById('selector-cripto').value;
         const precio = datosCriptos[id]?.precio || 0;
         
-        // Evitar números negativos
         if(this.value < 0) this.value = 0;
 
         const total = (parseFloat(this.value) * precio);
-        // Escribimos en el total (si es válido)
         inputTotal.value = isNaN(total) ? '' : total.toFixed(2);
     });
 
-    // 2. Si escribo TOTAL ($) -> Calcula Cantidad (Cripto)
     inputTotal?.addEventListener('input', function() {
         const id = document.getElementById('selector-cripto').value;
         const precio = datosCriptos[id]?.precio || 0;
 
-        // Evitar números negativos
         if(this.value < 0) this.value = 0;
 
         if (precio > 0) {
             const cantidad = (parseFloat(this.value) / precio);
-            // Escribimos la cantidad con 8 decimales (estándar cripto)
             inputCantidad.value = isNaN(cantidad) ? '' : cantidad.toFixed(8);
         }
     });
@@ -345,7 +350,6 @@ async function actualizarVistaSimulador(criptoId) {
 // ============================================
 // OPERACIONES DE TRADING
 // ============================================
-
 function ejecutarCompraRapida() {
     const id = document.getElementById('selector-cripto').value;
     const cantidad = parseFloat(document.getElementById('cantidad-compra').value);
@@ -437,29 +441,30 @@ window.addEventListener('load', async function() {
     
     const selector = document.getElementById('selector-cripto');
     if (selector) {
-        // Llenar selector
         selector.innerHTML = criptos.map(c => 
             `<option value="${c.id}">${c.nombre} (${c.simbolo})</option>`
         ).join('');
 
-        // Evento cambio de cripto
+        // Verificar si hay una cripto preseleccionada desde index
+        const criptoSeleccionada = sessionStorage.getItem('cryptosim-selected');
+        if (criptoSeleccionada) {
+            selector.value = criptoSeleccionada;
+            sessionStorage.removeItem('cryptosim-selected');
+        }
+
         selector.addEventListener('change', function() {
             actualizarVistaSimulador(this.value);
-            // Al cambiar moneda, recargamos la gráfica con la temporalidad actual
             actualizarGraficoTrading(this.value, temporalidadActual);
         });
     }
 
-    // 1. Cargar precios iniciales
     await obtenerPreciosSimples();
     
-    // 2. Cargar gráfica inicial (Bitcoin por defecto, 30m por defecto)
     if (selector) {
         actualizarVistaSimulador(selector.value);
         actualizarGraficoTrading(selector.value, temporalidadActual);
     }
 
-    // 3. Auto-actualización precios cada 3s
     setInterval(async () => {
         await obtenerPreciosSimples();
     }, 3000);

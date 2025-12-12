@@ -1,0 +1,453 @@
+/* ============================================
+   INDEX - ESTILO BINANCE DARK
+   ============================================ */
+
+body {
+    background: #0b0e11;
+    color: #eaecef;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+/* ============================================
+   NAVBAR
+   ============================================ */
+
+.navbar {
+    background: #181a20;
+    padding: 15px 0;
+    border-bottom: 1px solid #2b3139;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar .container {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.navbar .container::-webkit-scrollbar {
+    height: 3px;
+}
+
+.navbar .container::-webkit-scrollbar-track {
+    background: #181a20;
+}
+
+.navbar .container::-webkit-scrollbar-thumb {
+    background: #2b3139;
+    border-radius: 10px;
+}
+
+.navbar-brand {
+    color: #eaecef !important;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-right: 25px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.navbar-brand:hover {
+    color: #fcd535 !important;
+}
+
+.navbar-brand i {
+    margin-right: 5px;
+}
+
+/* ============================================
+   SECCIÓN DE BIENVENIDA
+   ============================================ */
+
+#inicio {
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #181a20 0%, #1e2329 100%);
+    border-radius: 12px;
+    margin-bottom: 30px;
+    border: 1px solid #2b3139;
+}
+
+#inicio h1 {
+    color: #fcd535;
+    font-weight: 700;
+    text-shadow: 0 2px 10px rgba(252, 213, 53, 0.3);
+}
+
+#inicio .lead {
+    color: #848e9c;
+    font-size: 1.1rem;
+}
+
+/* ============================================
+   CARTERA DEL USUARIO
+   ============================================ */
+
+.balance-cartera {
+    background: linear-gradient(135deg, #181a20 0%, #1e2329 100%);
+    border: 2px solid #2b3139;
+    border-radius: 12px;
+    padding: 40px 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.balance-cartera:hover {
+    border-color: #fcd535;
+    box-shadow: 0 6px 30px rgba(252, 213, 53, 0.2);
+}
+
+.balance-cartera h2 {
+    color: #eaecef;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.balance-cartera i {
+    color: #fcd535;
+}
+
+.balance-cantidad {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #0ecb81;
+    text-shadow: 0 2px 10px rgba(14, 203, 129, 0.3);
+    margin: 20px 0;
+}
+
+.balance-cartera .btn {
+    margin: 0 10px;
+    padding: 10px 25px;
+    font-weight: 600;
+    border-width: 2px;
+    transition: all 0.2s;
+}
+
+.balance-cartera .btn-outline-success {
+    border-color: #0ecb81;
+    color: #0ecb81;
+}
+
+.balance-cartera .btn-outline-success:hover {
+    background: #0ecb81;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 203, 129, 0.4);
+}
+
+.balance-cartera .btn-outline-danger {
+    border-color: #f6465d;
+    color: #f6465d;
+}
+
+.balance-cartera .btn-outline-danger:hover {
+    background: #f6465d;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(246, 70, 93, 0.4);
+}
+
+/* ============================================
+   SECCIÓN DE CRIPTOMONEDAS
+   ============================================ */
+
+#cripto-monedas h2 {
+    color: #eaecef;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+#cripto-monedas i {
+    color: #fcd535;
+    margin-right: 10px;
+}
+
+/* ============================================
+   TABLA DE CRIPTOMONEDAS
+   ============================================ */
+
+.tabla-cripto {
+    background: #181a20;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #2b3139;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.table {
+    margin-bottom: 0;
+    color: #eaecef;
+}
+
+.table-dark {
+    --bs-table-bg: #181a20;
+    --bs-table-striped-bg: #1e2329;
+    --bs-table-hover-bg: #2b3139;
+    border-color: #2b3139;
+}
+
+.table thead th {
+    background: #1e2329;
+    color: #848e9c;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #2b3139;
+    padding: 15px;
+}
+
+.table tbody td {
+    padding: 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #2b3139;
+    font-size: 0.95rem;
+}
+
+.table tbody tr {
+    transition: all 0.2s;
+}
+
+.table tbody tr:hover {
+    background: #2b3139;
+    transform: scale(1.01);
+}
+
+/* Nombre de criptomoneda */
+.cripto-nombre {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    color: #eaecef;
+}
+
+.cripto-icono {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2b3139;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.cripto-simbolo {
+    color: #848e9c;
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+/* Precio */
+.precio-actual {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #eaecef;
+    font-family: 'Courier New', monospace;
+}
+
+/* Cambio porcentual */
+.cambio-positivo {
+    color: #0ecb81;
+    font-weight: 600;
+}
+
+.cambio-negativo {
+    color: #f6465d;
+    font-weight: 600;
+}
+
+/* Holdings */
+.holdings-valor {
+    font-weight: 600;
+    color: #eaecef;
+}
+
+.holdings-cantidad {
+    color: #848e9c;
+    font-size: 0.85rem;
+}
+
+/* Botones de acción */
+.btn-action {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin: 0 3px;
+}
+
+.btn-comprar {
+    background: #0ecb81;
+    color: #000;
+    border: none;
+}
+
+.btn-comprar:hover {
+    background: #12d88a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(14, 203, 129, 0.4);
+}
+
+.btn-vender {
+    background: #f6465d;
+    color: #fff;
+    border: none;
+}
+
+.btn-vender:hover {
+    background: #f7506e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(246, 70, 93, 0.4);
+}
+
+.btn-ver-grafico {
+    background: transparent;
+    color: #fcd535;
+    border: 1px solid #fcd535;
+}
+
+.btn-ver-grafico:hover {
+    background: #fcd535;
+    color: #000;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+footer {
+    background: #181a20;
+    border-top: 1px solid #2b3139;
+    margin-top: 60px;
+}
+
+footer p {
+    margin: 0;
+    color: white;
+}
+
+/* ============================================
+   LOADER
+   ============================================ */
+
+.crypto-loader {
+    text-align: center;
+    padding: 40px;
+    color: #848e9c;
+}
+
+.crypto-loader i {
+    font-size: 2rem;
+    color: #fcd535;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #181a20;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2b3139;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3d4450;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .balance-cantidad {
+        font-size: 2rem;
+    }
+    
+    .balance-cartera .btn {
+        margin: 5px;
+        display: block;
+        width: 100%;
+    }
+    
+    .tabla-cripto {
+        overflow-x: auto;
+    }
+    
+    .table {
+        font-size: 0.85rem;
+    }
+    
+    .cripto-nombre {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .btn-action {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        margin: 2px 0;
+        display: block;
+        width: 100%;
+    }
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container > section {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Efecto de actualización de precios */
+@keyframes priceUpdate {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+.precio-actual.updating {
+    animation: priceUpdate 0.5s ease-in-out;
+}
