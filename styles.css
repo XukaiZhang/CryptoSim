@@ -27,16 +27,16 @@ body {
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
-    overflow-x: auto; /* Permite scroll lateral en móviles muy pequeños */
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 5px; /* Espacio para la barra de scroll si aparece */
 }
 
-/* Ocultar barra de scroll en navbar pero mantener funcionalidad */
+/* --- CORRECCIÓN AQUÍ: OCULTAR BARRA DEL NAVBAR --- */
 .navbar .container::-webkit-scrollbar {
-    height: 0px; 
+    height: 0px; /* Altura 0 para que sea invisible */
     background: transparent;
 }
+/* ------------------------------------------------ */
 
 .navbar-brand {
     color: #eaecef !important;
@@ -47,8 +47,6 @@ body {
     margin-right: 25px;
     white-space: nowrap;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
 }
 
 .navbar-brand:hover {
@@ -56,9 +54,9 @@ body {
 }
 
 .navbar-brand i {
-    margin-right: 8px;
-    font-size: 1.2rem;
+    margin-right: 5px;
 }
+
 
 /* ============================================
    SECCIÓN DE BIENVENIDA

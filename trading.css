@@ -41,18 +41,12 @@ body {
     -webkit-overflow-scrolling: touch;
 }
 
+/* --- CORRECCIÓN AQUÍ: OCULTAR BARRA DEL NAVBAR --- */
 .navbar .container::-webkit-scrollbar {
-    height: 3px;
+    height: 0px; /* Altura 0 para que sea invisible */
+    background: transparent;
 }
-
-.navbar .container::-webkit-scrollbar-track {
-    background: #181a20;
-}
-
-.navbar .container::-webkit-scrollbar-thumb {
-    background: #2b3139;
-    border-radius: 10px;
-}
+/* ------------------------------------------------ */
 
 .navbar-brand {
     color: #eaecef !important;
@@ -85,6 +79,7 @@ body {
     align-items: center;
     padding: 0 20px;
     border-bottom: 1px solid #2b3139;
+    gap: 20px; 
 }
 
 .crypto-selector {
@@ -97,6 +92,7 @@ body {
     cursor: pointer;
     font-size: 0.95rem;
     transition: all 0.2s;
+    margin: 0;
 }
 
 .crypto-selector:hover {
@@ -113,18 +109,24 @@ body {
 }
 
 .precio-header {
-    margin-left: 20px;
+    margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
     color: #eaecef;
 }
 
 .cambio-header {
-    margin-left: 10px;
+    margin: 0;
     padding: 4px 10px;
     border-radius: 4px;
     font-size: 0.9rem;
     font-weight: 600;
+}
+
+.trading-header .ms-auto {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
 }
 
 .cambio-positivo {
@@ -434,7 +436,7 @@ body {
 }
 
 /* ============================================
-   SCROLLBAR PERSONALIZADO
+   SCROLLBAR PERSONALIZADO (GENERAL)
    ============================================ */
 
 ::-webkit-scrollbar {
@@ -515,18 +517,18 @@ body {
 }
 
 /* ============================================
-   RESPONSIVE (MÓVIL Y TABLET) - NUEVO
-   Aquí es donde ocurre la magia para móviles
+   RESPONSIVE (MÓVIL) - CORREGIDO
    ============================================ */
 
 @media (max-width: 992px) {
-    /* 1. Liberamos el scroll del body */
+    /* 1. Resetear el BODY para permitir scroll normal */
     body {
-        overflow-y: auto !important; /* Forzar scroll vertical */
+        overflow: auto !important; 
         height: auto !important;
+        position: static !important;
     }
 
-    /* 2. Cambiamos de Grid a Flex Vertical */
+    /* 2. FLEX VERTICAL (Necesario para usar 'order') */
     .trading-layout {
         display: flex !important;
         flex-direction: column !important;
@@ -534,50 +536,53 @@ body {
         overflow: visible !important;
     }
 
-    /* 3. Header pegajoso arriba */
+    /* 3. Header (Posición 1) */
     .trading-header {
         order: 1;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        flex-wrap: wrap; /* Permitir que los elementos bajen si no caben */
-        padding: 10px;
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-wrap: wrap; /* Importante para que no se corten elementos */
+        padding: 15px;
     }
-
-    .crypto-selector { margin-bottom: 5px; }
-
-    /* 4. Gráfico con altura fija (para que no desaparezca ni ocupe todo) */
+    
+    /* 4. Gráfica (Posición 2 - Altura Fija) */
     .chart-main {
         order: 2;
-        height: 450px !important; /* Altura fija en móvil */
-        min-height: 450px !important;
+        width: 100% !important;
+        height: 400px !important; 
+        min-height: 400px !important;
         border-right: none !important;
         border-bottom: 1px solid #2b3139;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chart-container-trading {
+        height: 100% !important;
+        flex: none !important;   
     }
 
-    /* 5. Panel de botones de trading */
+    /* 5. Panel Trading (Posición 3) */
     .trading-panel-right {
         order: 3;
+        width: 100% !important;
+        height: auto !important;
+        padding-bottom: 30px;
         overflow: visible !important;
-        padding-bottom: 40px;
     }
 
-    /* 6. Libro de órdenes al final */
+    /* 6. Libro de Órdenes (Posición 4 - AL FINAL) */
     .orderbook-panel {
         order: 4;
-        height: 300px !important; /* Altura limitada con scroll */
+        width: 100% !important;
+        height: 300px !important; 
         border-right: none !important;
         border-top: 1px solid #2b3139;
     }
-
-    /* Ajustes menores de texto */
-    .precio-header { font-size: 1.1rem; }
-    
-    /* Opcional: Ocultar navbar superior para ganar espacio en trading */
-    /* .navbar { display: none; } */
 }
 
-/* Eliminar flechas/spinners en Chrome, Safari, Edge, Opera */
+/* Eliminar flechas en inputs de número (Navegadores móviles) */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
   -webkit-appearance: none;
