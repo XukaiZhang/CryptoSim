@@ -24,7 +24,6 @@
         <div class="container">
             <a class="navbar-brand" href="index.html"><i class="fa-brands fa-bitcoin"></i> CryptoSim</a>
             <a class="navbar-brand" href="simulador.html"><i class="fa-solid fa-magnifying-glass-chart"></i> Simulador</a>
-            <a class="navbar-brand" href="mercado.html"><i class="fas fa-chart-line"></i> Mercado</a>
             <a class="navbar-brand" href="cuenta.html"><i class="fa-solid fa-user"></i> Cuenta</a>
             <a class="navbar-brand" href="contacto.html"><i class="fa-solid fa-phone"></i> Contacto</a>
         </div>
@@ -43,14 +42,17 @@
         <!-- Cartera del usuario -->
         <section id="cartera-section" class="mb-5">
             <div class="balance-cantidad" id="cartera">$10,000.00</div>
-            <p class="text-muted mb-3">Patrimonio Total (Saldo + Criptos)</p>
+            <p class="text mb-2">Patrimonio Total (Saldo + Criptos)</p>
+
+            <h5 class="text mb-4">
+                Saldo Disponible: <span id="saldo-disponible-texto" class="text-white">$10,000.00</span>
+            </h5>
+
             <button class="btn btn-outline-success mt-3" onclick="window.location.href='simulador.html'">
                 <i class="fas fa-chart-line"></i> Ir al Simulador
             </button>
-            <button class="btn btn-outline-danger mt-3" onclick="resetearApp()">
-                <i class="fas fa-redo"></i> Resetear Cuenta
-            </button>
-        </section>
+            
+            </section>
 
         <!-- Tabla de criptomonedas -->
         <section id="cripto-monedas" class="mb-5">
@@ -62,7 +64,7 @@
                         <tr>
                             <th>Criptomoneda</th>
                             <th>Precio Actual</th>
-                            <th>Cambio (%)</th>
+                            <th>Cambio 24h (%)</th>
                             <th>Holdings</th>
                             <th>Acciones</th>
                         </tr>
@@ -91,7 +93,35 @@
     <!-- Librerías externas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
     <script src="index-script.js"></script>
+
+    <script>
+        // Esta función permite que auth-config.js (la nube) actualice esta página
+        // cuando detecte que el usuario ha iniciado sesión.
+        function actualizarVisualmente() {
+            console.log("☁️ Nube sincronizada en Index");
+            if(typeof actualizarPatrimonioTotal === 'function') actualizarPatrimonioTotal();
+            if(typeof actualizarTabla === 'function') actualizarTabla();
+        }
+
+        // Modificamos la función de guardar para que guarde EN LOS DOS SITIOS a la vez
+        const guardarOriginal = guardarDatos; // Guardamos copia de la original
+        
+        guardarDatos = function() {
+            guardarOriginal(); // Guarda en LocalStorage (para velocidad)
+            if (typeof guardarEnNube === 'function') guardarEnNube(); // Guarda en Google (para seguridad)
+        }
+    </script>
+
+    <script src="auth-config.js"></script>
+
+</body>
+</html>
 
 </body>
 </html>

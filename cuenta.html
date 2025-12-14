@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cuenta - CryptoSim</title>
+    <link rel="icon" type="image/png" href="bitcoin.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="cuenta.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="fa-brands fa-bitcoin"></i> CryptoSim</a>
+            <a class="navbar-brand" href="simulador.html"><i class="fa-solid fa-magnifying-glass-chart"></i> Simulador</a>
+            <a class="navbar-brand" href="cuenta.html"><i class="fa-solid fa-user"></i> Cuenta</a>
+            <a class="navbar-brand" href="contacto.html"><i class="fa-solid fa-phone"></i> Contacto</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        
+        <div id="login-view" class="text-center py-5" style="display: none;">
+            <h2 class="mb-4">Inicia sesión para guardar tu progreso</h2>
+            <p class="text-muted mb-4">Conecta tu cuenta de Google para sincronizar tus ganancias del simulador.</p>
+            <button class="google-btn" onclick="iniciarSesionGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" class="me-2">
+                Continuar con Google
+            </button>
+        </div>
+
+        <div id="profile-view" class="row g-4" style="display: none;">
+            <div class="col-md-4">
+                <div class="profile-card">
+                    <img id="user-photo" src="https://via.placeholder.com/150" alt="Profile" class="profile-img">
+                    <h4 id="user-name" class="text-white">Usuario</h4>
+                    <p id="user-email" class="text">usuario@email.com</p>
+                    
+                    <button class="btn btn-outline-light btn-sm mt-3 w-100" onclick="cerrarSesion()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+
+                    <button class="btn btn-outline-danger btn-sm mt-2 w-100" onclick="resetearApp()">
+                        <i class="fas fa-trash-alt"></i> Resetear Cuenta
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="wallet-card">
+                    <h5 class="text-muted mb-2"><i class="fas fa-chart-pie"></i> Patrimonio Total Estimado</h5>
+                    <h1 class="display-4 text-warning fw-bold mb-3" id="patrimonio-cuenta-live">Cargando...</h1>
+                    
+                    <p class="text-white mb-4">
+                        Saldo Disponible (USD): <span id="saldo-cuenta-fijo" class="fw-bold text-success">...</span>
+                    </p>
+                    
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-success flex-grow-1 py-3 fw-bold" onclick="gestionarFondos('ingresar')">
+                            <i class="fas fa-arrow-up"></i> Ingresar
+                        </button>
+                        <button class="btn btn-danger flex-grow-1 py-3 fw-bold" onclick="gestionarFondos('retirar')">
+                            <i class="fas fa-arrow-down"></i> Retirar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
+    
+    <script src="script.js"></script>       <script src="auth-config.js"></script>  <script>
+        // Lógica de botones (Ingresar / Retirar) específica de esta página
+        async function gestionarFondos(accion) {
+            const esIngreso = accion === 'ingresar';
+            const titulo = esIngreso ? 'Ingresar Fondos' : 'Retirar Fondos';
+            const color = esIngreso ? '#0ecb81' : '#f6465d';
+
+            const { value: cantidad } = await Swal.fire({
+                title: titulo,
+                text: esIngreso ? '¿Cuánto quieres añadir?' : '¿Cuánto quieres retirar?',
+                input: 'number',
+                inputAttributes: { min: '0.01', step: 'any' },
+                showCancelButton: true,
+                confirmButtonText: esIngreso ? 'Depositar' : 'Retirar',
+                confirmButtonColor: color,
+                background: '#181a20', color: '#eaecef',
+                inputValidator: (value) => {
+                    if (!value || parseFloat(value) <= 0) return 'Por favor escribe una cantidad válida';
+                }
+            });
+
+            if (cantidad) {
+                const valor = parseFloat(cantidad);
+
+                if (!esIngreso && valor > saldoUsuario) {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'Fondos insuficientes',
+                        text: `No tienes suficiente saldo.`,
+                        background: '#181a20', color: '#eaecef'
+                    });
+                }
+
+                if (esIngreso) saldoUsuario += valor;
+                else saldoUsuario -= valor;
+
+                guardarDatos(); 
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Operación Exitosa!',
+                    text: `Nuevo saldo: ${formatearDinero(saldoUsuario)}`,
+                    background: '#181a20', color: '#eaecef', 
+                    timer: 2000, showConfirmButton: false
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

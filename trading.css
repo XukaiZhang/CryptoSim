@@ -24,12 +24,53 @@ body {
     background: #1e2329;
 }
 
+.navbar {
+    background: #181a20;
+    padding: 15px 0;
+    border-bottom: 1px solid #2b3139;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar .container {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.navbar .container::-webkit-scrollbar {
+    height: 3px;
+}
+
+.navbar .container::-webkit-scrollbar-track {
+    background: #181a20;
+}
+
+.navbar .container::-webkit-scrollbar-thumb {
+    background: #2b3139;
+    border-radius: 10px;
+}
+
 .navbar-brand {
-    color: white;
+    color: #eaecef !important;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin-right: 25px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .navbar-brand:hover {
-    color: white;
+    color: #fcd535 !important;
+}
+
+.navbar-brand i {
+    margin-right: 5px;
 }
 
 

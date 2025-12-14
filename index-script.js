@@ -10,20 +10,22 @@ const criptos = [
 ];
 
 // ============================================
-// VARIABLES GLOBALES
+// VARIABLES GLOBALES (Públicas)
 // ============================================
-let saldoUsuario = 10000;
-let holdings = {};
-let datosCriptos = {};
-let historialOperaciones = [];
+var saldoUsuario = (typeof saldoUsuario !== 'undefined') ? saldoUsuario : 100000;
+var holdings = (typeof holdings !== 'undefined') ? holdings : {};
+var datosCriptos = (typeof datosCriptos !== 'undefined') ? datosCriptos : {};
+var historialOperaciones = (typeof historialOperaciones !== 'undefined') ? historialOperaciones : [];
 
-// Inicializar holdings a 0
-criptos.forEach(cripto => {
-    holdings[cripto.id] = 0;
-});
+// Inicializar holdings si está vacío
+if (Object.keys(holdings).length === 0) {
+    criptos.forEach(cripto => {
+        holdings[cripto.id] = 0;
+    });
+}
 
 // ============================================
-// CARGA Y GUARDADO DE DATOS (LOCALSTORAGE)
+// CARGA Y GUARDADO
 // ============================================
 function guardarDatos() {
     localStorage.setItem('cryptosim-data', JSON.stringify({
@@ -32,59 +34,87 @@ function guardarDatos() {
         datosCriptos: datosCriptos,
         historialOperaciones: historialOperaciones
     }));
+    
+    if (typeof guardarEnNube === 'function' && typeof usuarioActual !== 'undefined' && usuarioActual) {
+        guardarEnNube();
+    }
 }
 
 function cargarDatos() {
+    if (typeof usuarioActual !== 'undefined' && usuarioActual) return;
+
     const datos = JSON.parse(localStorage.getItem('cryptosim-data') || '{}');
     if (datos.saldo !== undefined) {
         saldoUsuario = datos.saldo;
-        holdings = datos.holdings || holdings;
+        if (Object.keys(holdings).length === 0) holdings = datos.holdings || holdings;
         datosCriptos = datos.datosCriptos || {};
         historialOperaciones = datos.historialOperaciones || [];
     }
 }
 
+// ============================================
+// FUNCIÓN RESETEAR
+// ============================================
 function resetearApp() {
     Swal.fire({
-        title: '¿Estás seguro?',
-        text: "Se borrarán todos los datos y tu cuenta volverá a $10,000",
+        title: '¿Resetear todo?',
+        text: "Se borrarán los datos de la nube y locales.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#0ecb81',
         cancelButtonColor: '#f6465d',
-        confirmButtonText: 'Sí, resetear',
-        cancelButtonText: 'Cancelar',
-        background: '#181a20',
-        color: '#eaecef'
-    }).then((result) => {
+        confirmButtonText: 'Sí, borrar',
+        background: '#181a20', color: '#eaecef'
+    }).then(async (result) => {
         if (result.isConfirmed) {
+            Swal.fire({ title: 'Borrando...', didOpen: () => Swal.showLoading(), background: '#181a20', color: '#eaecef' });
             localStorage.removeItem('cryptosim-data');
-            location.reload();
+            if (typeof db !== 'undefined' && typeof usuarioActual !== 'undefined' && usuarioActual) {
+                try {
+                    await db.collection('usuarios').doc(usuarioActual.uid).set({
+                        saldo: 100000, holdings: {}, historial: [], ultimaActualizacion: new Date()
+                    });
+                } catch (e) { console.error(e); }
+            }
+            setTimeout(() => location.reload(), 1000);
         }
     });
 }
 
 // ============================================
-// UTILIDADES
+// UTILIDADES Y UI
 // ============================================
 function formatearDinero(cantidad) {
-    return '$' + cantidad.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const numero = parseFloat(cantidad);
+    return '$' + numero.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+function formatearCripto(cantidad) { return cantidad.toFixed(6); }
+
+function calcularPatrimonioTotal() {
+    let valorInvertido = 0;
+    criptos.forEach(c => {
+        const cantidad = holdings[c.id] || 0;
+        const precio = datosCriptos[c.id] ? datosCriptos[c.id].precio : 0;
+        valorInvertido += cantidad * precio;
+    });
+    return (parseFloat(saldoUsuario) || 0) + valorInvertido;
 }
 
-function formatearCripto(cantidad) {
-    return cantidad.toFixed(6);
+function actualizarPatrimonioTotal() {
+    const patrimonio = calcularPatrimonioTotal();
+    const carteraEl = document.getElementById('cartera');
+    if (carteraEl) carteraEl.textContent = formatearDinero(patrimonio);
+    const saldoEl = document.getElementById('saldo-disponible-texto');
+    if (saldoEl) saldoEl.textContent = formatearDinero(parseFloat(saldoUsuario) || 0);
 }
 
 // ============================================
-// OBTENER PRECIOS DE COINGECKO
+// TABLA Y PRECIOS
 // ============================================
 async function obtenerPreciosSimples() {
     try {
         const ids = criptos.map(c => c.id).join(',');
-        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`;
-
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('API Error');
+        const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
         const data = await res.json();
 
         criptos.forEach(cripto => {
@@ -96,189 +126,44 @@ async function obtenerPreciosSimples() {
             }
         });
         
-        // Guardar los precios actualizados
         guardarDatos();
-        
-        // Actualizar la UI
         actualizarTabla();
         actualizarPatrimonioTotal();
-
-    } catch (error) {
-        console.warn('Error al obtener precios:', error);
-        // Mostrar mensaje en la tabla si hay error
-        const tbody = document.getElementById('tabla-criptomonedas');
-        if (tbody && Object.keys(datosCriptos).length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5">
-                        <div class="crypto-loader">
-                            <i class="fas fa-exclamation-triangle text-warning"></i>
-                            <p class="mt-2 text-warning">Error al conectar con la API. Reintentando...</p>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        }
-    }
+    } catch (error) { console.warn(error); }
 }
 
-// ============================================
-// CALCULAR PATRIMONIO TOTAL
-// ============================================
-function calcularPatrimonioTotal() {
-    let valorInvertido = 0;
-    
-    criptos.forEach(c => {
-        const cantidad = holdings[c.id] || 0;
-        const precio = datosCriptos[c.id] ? datosCriptos[c.id].precio : 0;
-        valorInvertido += cantidad * precio;
-    });
-
-    return saldoUsuario + valorInvertido;
-}
-
-function actualizarPatrimonioTotal() {
-    const patrimonioTotal = calcularPatrimonioTotal();
-    const carteraEl = document.getElementById('cartera');
-    
-    if (carteraEl) {
-        const valorAnterior = carteraEl.textContent;
-        const nuevoValor = formatearDinero(patrimonioTotal);
-        
-        if (valorAnterior !== nuevoValor) {
-            carteraEl.textContent = nuevoValor;
-            carteraEl.classList.add('updating');
-            setTimeout(() => carteraEl.classList.remove('updating'), 500);
-        } else {
-            carteraEl.textContent = nuevoValor;
-        }
-    }
-}
-
-// ============================================
-// ACTUALIZAR TABLA DE CRIPTOMONEDAS
-// ============================================
 function actualizarTabla() {
     const tbody = document.getElementById('tabla-criptomonedas');
-    if (!tbody) return;
-
-    // Verificar si tenemos datos
-    if (Object.keys(datosCriptos).length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5">
-                    <div class="crypto-loader">
-                        <i class="fas fa-spinner"></i>
-                        <p class="mt-2">Cargando datos del mercado...</p>
-                    </div>
-                </td>
-            </tr>
-        `;
-        return;
-    }
+    if (!tbody || Object.keys(datosCriptos).length === 0) return;
 
     let html = '';
-
     criptos.forEach(cripto => {
         const datos = datosCriptos[cripto.id];
+        if (!datos) return;
         
-        // Si no hay datos de esta cripto específica, mostrar placeholder
-        if (!datos) {
-            html += `
-                <tr>
-                    <td>
-                        <div class="cripto-nombre">
-                            <div class="cripto-icono">${cripto.icono}</div>
-                            <div>
-                                <div>${cripto.nombre}</div>
-                                <div class="cripto-simbolo">${cripto.simbolo}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td colspan="4" class="text-muted">Cargando...</td>
-                </tr>
-            `;
-            return;
-        }
-
-        const cantidadHolding = holdings[cripto.id] || 0;
-        const valorHolding = cantidadHolding * datos.precio;
-        
+        const cantidad = holdings[cripto.id] || 0;
         const cambioClase = datos.cambio24h >= 0 ? 'cambio-positivo' : 'cambio-negativo';
-        const cambioSigno = datos.cambio24h >= 0 ? '+' : '';
-
-        html += `
-            <tr>
-                <td>
-                    <div class="cripto-nombre">
-                        <div class="cripto-icono">${cripto.icono}</div>
-                        <div>
-                            <div>${cripto.nombre}</div>
-                            <div class="cripto-simbolo">${cripto.simbolo}</div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <span class="precio-actual">${formatearDinero(datos.precio)}</span>
-                </td>
-                <td>
-                    <span class="${cambioClase}">
-                        ${cambioSigno}${datos.cambio24h.toFixed(2)}%
-                    </span>
-                </td>
-                <td>
-                    <div class="holdings-valor">${formatearDinero(valorHolding)}</div>
-                    <div class="holdings-cantidad">${formatearCripto(cantidadHolding)} ${cripto.simbolo}</div>
-                </td>
-                <td>
-                    <button class="btn btn-action btn-ver-grafico" onclick="verGrafico('${cripto.id}')">
-                        <i class="fas fa-chart-line"></i> Ver
-                    </button>
-                </td>
-            </tr>
-        `;
+        
+        html += `<tr>
+            <td><div class="cripto-nombre"><div class="cripto-icono">${cripto.icono}</div><div><div>${cripto.nombre}</div><div class="cripto-simbolo">${cripto.simbolo}</div></div></div></td>
+            <td><span class="precio-actual">${formatearDinero(datos.precio)}</span></td>
+            <td><span class="${cambioClase}">${datos.cambio24h >= 0 ? '+' : ''}${datos.cambio24h.toFixed(2)}%</span></td>
+            <td><div class="holdings-valor">${formatearDinero(cantidad * datos.precio)}</div><div class="holdings-cantidad">${formatearCripto(cantidad)} ${cripto.simbolo}</div></td>
+            <td><button class="btn btn-action btn-ver-grafico" onclick="verGrafico('${cripto.id}')"><i class="fas fa-chart-line"></i> Ver</button></td>
+        </tr>`;
     });
-
     tbody.innerHTML = html;
 }
 
-// ============================================
-// NAVEGACIÓN
-// ============================================
-function verGrafico(criptoId) {
-    // Guardar la selección para que el simulador la muestre
-    sessionStorage.setItem('cryptosim-selected', criptoId);
+function verGrafico(id) {
+    sessionStorage.setItem('cryptosim-selected', id);
     window.location.href = 'simulador.html';
 }
 
-// ============================================
-// INICIALIZACIÓN
-// ============================================
 window.addEventListener('load', async function() {
-    console.log('🚀 Iniciando CryptoSim Index...');
-    
-    // 1. Cargar datos guardados del localStorage
     cargarDatos();
-    console.log('📊 Datos cargados - Saldo:', saldoUsuario, 'Holdings:', holdings);
-    
-    // 2. Actualizar patrimonio inicial (con datos guardados)
     actualizarPatrimonioTotal();
-    
-    // 3. Si tenemos datos guardados de precios, mostrar tabla inmediatamente
-    if (Object.keys(datosCriptos).length > 0) {
-        console.log('💾 Usando precios guardados del cache');
-        actualizarTabla();
-    }
-    
-    // 4. Obtener precios actuales de la API
-    console.log('🌐 Obteniendo precios en tiempo real...');
+    if (Object.keys(datosCriptos).length > 0) actualizarTabla();
     await obtenerPreciosSimples();
-    
-    // 5. Auto-actualización cada 5 segundos (más frecuente para mejor sincronización)
-    setInterval(async () => {
-        console.log('🔄 Actualizando precios...');
-        await obtenerPreciosSimples();
-    }, 5000);
-    
-    console.log('✅ CryptoSim Index iniciado correctamente');
+    setInterval(async () => { await obtenerPreciosSimples(); }, 5000);
 });

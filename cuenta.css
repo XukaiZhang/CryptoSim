@@ -1,0 +1,45 @@
+/* ============================================
+   ESTILOS DE CUENTA (PERFIL)
+   ============================================ */
+
+.profile-card {
+    background: #181a20;
+    border: 1px solid #2b3139;
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+}
+
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #fcd535;
+    margin-bottom: 20px;
+    object-fit: cover;
+}
+
+.wallet-card {
+    background: linear-gradient(135deg, #1e2329 0%, #2b3139 100%);
+    border-radius: 12px;
+    padding: 30px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.google-btn {
+    background: #fff;
+    color: #333;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.3s;
+}
+
+.google-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255,255,255, 0.2);
+}
