@@ -505,7 +505,7 @@ body {
 }
 
 /* ============================================
-   RESPONSIVE
+   RESPONSIVE (ESCRITORIO GRANDE)
    ============================================ */
 
 @media (max-width: 1400px) {
@@ -514,74 +514,68 @@ body {
     }
 }
 
-@media (max-width: 1200px) {
-    .trading-layout {
-        grid-template-columns: 1fr;
-        grid-template-rows: 60px 1fr 250px;
-    }
-    
-    .orderbook-panel,
-    .trading-panel-right {
-        display: none;
-    }
-}
-
-@media (max-width: 768px) {
-    .precio-header {
-        font-size: 1.2rem;
-    }
-    
-    .cambio-header {
-        font-size: 0.8rem;
-    }
-    
-    .chart-controls {
-        padding: 8px 10px;
-        gap: 3px;
-    }
-    
-    .btn-timeframe {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-    }
-    
-    .orders-panel {
-        grid-template-rows: auto 1fr;
-    }
-}
-
 /* ============================================
-   ANIMACIONES
+   RESPONSIVE (MÓVIL Y TABLET) - NUEVO
+   Aquí es donde ocurre la magia para móviles
    ============================================ */
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+@media (max-width: 992px) {
+    /* 1. Liberamos el scroll del body */
+    body {
+        overflow-y: auto !important; /* Forzar scroll vertical */
+        height: auto !important;
     }
-    to {
-        opacity: 1;
+
+    /* 2. Cambiamos de Grid a Flex Vertical */
+    .trading-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        height: auto !important;
+        overflow: visible !important;
     }
-}
 
-.trading-layout {
-    animation: fadeIn 0.3s ease-in;
-}
-
-/* Efecto de actualización de precios */
-@keyframes priceUpdate {
-    0%, 100% {
-        opacity: 1;
+    /* 3. Header pegajoso arriba */
+    .trading-header {
+        order: 1;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        flex-wrap: wrap; /* Permitir que los elementos bajen si no caben */
+        padding: 10px;
     }
-    50% {
-        opacity: 0.7;
+
+    .crypto-selector { margin-bottom: 5px; }
+
+    /* 4. Gráfico con altura fija (para que no desaparezca ni ocupe todo) */
+    .chart-main {
+        order: 2;
+        height: 450px !important; /* Altura fija en móvil */
+        min-height: 450px !important;
+        border-right: none !important;
+        border-bottom: 1px solid #2b3139;
     }
-}
 
-.precio-header.updating {
-    animation: priceUpdate 0.5s ease-in-out;
-}
+    /* 5. Panel de botones de trading */
+    .trading-panel-right {
+        order: 3;
+        overflow: visible !important;
+        padding-bottom: 40px;
+    }
 
-/* trading.css - Al final del archivo */
+    /* 6. Libro de órdenes al final */
+    .orderbook-panel {
+        order: 4;
+        height: 300px !important; /* Altura limitada con scroll */
+        border-right: none !important;
+        border-top: 1px solid #2b3139;
+    }
+
+    /* Ajustes menores de texto */
+    .precio-header { font-size: 1.1rem; }
+    
+    /* Opcional: Ocultar navbar superior para ganar espacio en trading */
+    /* .navbar { display: none; } */
+}
 
 /* Eliminar flechas/spinners en Chrome, Safari, Edge, Opera */
 input[type=number]::-webkit-outer-spin-button,
