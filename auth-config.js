@@ -1,7 +1,6 @@
 // ==========================================
 // CONFIGURACIÓN DE FIREBASE
 // ==========================================
-
 const firebaseConfig = {
   apiKey: "AIzaSyB9XeOvfHecSfEq1uCorWFLR7OJsrGwnKA",
   authDomain: "crypto-sim-90fdd.firebaseapp.com",
@@ -11,78 +10,86 @@ const firebaseConfig = {
   appId: "1:783195911306:web:a02a14276ef771e195e973",
 };
 
-// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
 // ==========================================
-// LÓGICA DE AUTENTICACIÓN
+// LÓGICA DE SESIÓN (MODIFICADA PARA UI UNIFICADA)
 // ==========================================
 let usuarioActual = null;
 
-// Escuchar cambios de sesión (Login/Logout)
 auth.onAuthStateChanged(async (user) => {
-    const loginView = document.getElementById('login-view');
-    const profileView = document.getElementById('profile-view');
-    
+    // Referencias a elementos de la interfaz
+    const infoUsuario = document.getElementById('info-usuario');
+    const infoInvitado = document.getElementById('info-invitado');
+    const imgPerfil = document.getElementById('user-photo');
+    const nombreUsuario = document.getElementById('user-name');
+    const emailUsuario = document.getElementById('user-email');
+
     if (user) {
-        // --- USUARIO LOGUEADO ---
+        // --- MODO: USUARIO CONECTADO ---
         usuarioActual = user;
-        console.log("Usuario conectado:", user.displayName);
+        console.log("Conectado como:", user.displayName);
 
-        if (loginView) loginView.style.display = 'none';
-        if (profileView) profileView.style.display = 'flex';
+        // 1. Alternar interfaz (Ocultar invitado, mostrar usuario)
+        if(infoInvitado) infoInvitado.style.display = 'none';
+        if(infoUsuario) infoUsuario.style.display = 'block';
 
-        // Actualizar UI de perfil
-        const img = document.getElementById('user-photo');
-        const name = document.getElementById('user-name');
-        const email = document.getElementById('user-email');
-        
-        if(img) img.src = user.photoURL;
-        if(name) name.textContent = user.displayName;
-        if(email) email.textContent = user.email;
+        // 2. Rellenar datos del perfil
+        if(imgPerfil) imgPerfil.src = user.photoURL;
+        if(nombreUsuario) nombreUsuario.textContent = user.displayName;
+        if(emailUsuario) emailUsuario.textContent = user.email;
 
-        // CARGAR DATOS (Priorizando progreso local si la nube es nueva)
+        // 3. Cargar datos de la nube
         await cargarDatosNube(user.uid);
 
     } else {
-        // --- USUARIO DESCONECTADO ---
+        // --- MODO: INVITADO (LOGOUT) ---
         usuarioActual = null;
-        console.log("Sin sesión");
+        console.log("Modo invitado");
 
-        if (loginView) loginView.style.display = 'block';
-        if (profileView) profileView.style.display = 'none';
-        
-        // Si no hay usuario, usamos localStorage
+        // 1. Alternar interfaz (Ocultar usuario, mostrar invitado)
+        if(infoUsuario) infoUsuario.style.display = 'none';
+        if(infoInvitado) infoInvitado.style.display = 'block';
+
+        // 2. Poner avatar genérico
+        // 2. Poner avatar genérico (TU IMAGEN LOCAL)
+        if(imgPerfil) imgPerfil.src = "guest-avatar.png";
+
+        // 3. Cargar datos LOCALES (Esto soluciona el problema de que no "reseteaba")
+        // Al no haber usuario, script.js leerá localStorage.
         if(typeof cargarDatos === 'function') cargarDatos(); 
+        
+        // 4. Actualizar visualmente (Importante para que cambie el saldo al instante)
         if(typeof actualizarVisualmente === 'function') actualizarVisualmente();
     }
 });
 
+// ==========================================
+// ACCIONES DE SESIÓN
+// ==========================================
 function iniciarSesionGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .catch((error) => {
-            console.error("Error login:", error);
-            Swal.fire('Error', error.message, 'error');
-        });
+    auth.signInWithPopup(provider).catch((error) => {
+        console.error("Error:", error);
+        Swal.fire('Error', error.message, 'error');
+    });
 }
 
 function cerrarSesion() {
     auth.signOut().then(() => {
         sessionStorage.removeItem('welcomeShown');
-        location.reload();
+        // Recargar asegura que se limpien variables de memoria y se lea localStorage limpio
+        location.reload(); 
     });
 }
 
 // ==========================================
-// FUNCIONES DE BASE DE DATOS (CLOUD)
+// SINCRONIZACIÓN DE DATOS
 // ==========================================
-
 async function guardarEnNube() {
     if (!usuarioActual) return; 
-
     try {
         await db.collection('usuarios').doc(usuarioActual.uid).set({
             saldo: saldoUsuario,
@@ -90,85 +97,50 @@ async function guardarEnNube() {
             historial: historialOperaciones,
             ultimaActualizacion: new Date()
         });
-        console.log("Datos guardados en la nube");
-    } catch (e) {
-        console.error("Error guardando en nube:", e);
-    }
+    } catch (e) { console.error("Error guardando nube:", e); }
 }
 
 async function cargarDatosNube(uid) {
     try {
         const doc = await db.collection('usuarios').doc(uid).get();
-        
-        // LEER DATOS LOCALES PARA COMPARAR
         const localData = JSON.parse(localStorage.getItem('cryptosim-data') || '{}');
-        const localSaldo = localData.saldo !== undefined ? localData.saldo : 100000;
         
-        // Determinar si hay progreso local relevante (si el saldo no es el inicial o hay holdings)
-        const tieneProgresoLocal = localSaldo !== 100000 || 
-                                   (localData.holdings && Object.values(localData.holdings).some(h => h > 0));
-
+        // Comprobamos si hay datos locales relevantes para sugerir sincronización
+        // (Solo si la nube está "vacía" o es nueva)
+        const tieneProgresoLocal = localData.saldo !== undefined && localData.saldo !== 100000;
+        
         if (doc.exists) {
             const data = doc.data();
-            
-            // Determinar si la cuenta en la nube es "nueva" o por defecto (tiene 100k y sin holdings)
-            const nubeEsDefault = (!data.saldo || data.saldo === 100000) && 
-                                  (!data.holdings || Object.values(data.holdings).every(h => h === 0));
+            const nubeEsDefault = (!data.saldo || data.saldo === 100000) && (!data.holdings || Object.keys(data.holdings).length === 0);
 
-            // === LÓGICA DE SINCRONIZACIÓN INTELIGENTE ===
-            // Si la nube está vacía (default) PERO localmente has jugado (tienes progreso),
-            // damos prioridad a lo Local y lo subimos a la nube.
             if (nubeEsDefault && tieneProgresoLocal) {
-                console.log("⚡ Sincronizando progreso local a la nube...");
+                // Sincronización inversa (Local -> Nube) la primera vez
+                console.log("Subiendo progreso local a cuenta nueva...");
                 saldoUsuario = localData.saldo;
                 holdings = localData.holdings || {};
                 historialOperaciones = localData.historialOperaciones || [];
-                
-                // Guardar inmediatamente en la nube para el futuro
                 await guardarEnNube();
-                
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Sincronización',
-                    text: 'Hemos subido tu progreso local a tu cuenta.',
-                    timer: 2000, showConfirmButton: false
-                });
-
+                Swal.fire({ icon: 'info', title: 'Sincronizado', text: 'Tu progreso de invitado se ha guardado en tu cuenta.', timer: 2000, showConfirmButton: false });
             } else {
-                // CASO NORMAL: La nube manda
-                // (O ya tenías datos en la nube, o no tenías nada en local tampoco)
-                
-                if (data.saldo === undefined || data.saldo === null || data.saldo < 1) {
-                    saldoUsuario = 100000;
-                    guardarEnNube(); 
-                } else {
-                    saldoUsuario = data.saldo;
-                }
-                
+                // Normal (Nube -> Local)
+                saldoUsuario = (data.saldo !== undefined) ? data.saldo : 100000;
                 holdings = data.holdings || {};
                 historialOperaciones = data.historial || [];
             }
-
         } else {
-            // USUARIO NUEVO EN LA NUBE (Documento no existe)
-            // Si tiene datos locales, los usamos. Si no, empezamos de cero.
+            // Usuario nuevo en Firestore
             if (tieneProgresoLocal) {
                 saldoUsuario = localData.saldo;
                 holdings = localData.holdings || {};
                 historialOperaciones = localData.historialOperaciones || [];
-                console.log("Creando usuario nube con datos locales");
             } else {
                 saldoUsuario = 100000;
-                console.log("Creando usuario nube nuevo (100k)");
             }
             await guardarEnNube();
         }
 
-        // Actualizar interfaz
-        if(typeof actualizarSaldoTotalCuenta === 'function') actualizarSaldoTotalCuenta();
         if(typeof actualizarVisualmente === 'function') actualizarVisualmente();
 
-        // Saludo
         if (!sessionStorage.getItem('welcomeShown')) {
             Swal.fire({
                 icon: 'success',
@@ -178,7 +150,5 @@ async function cargarDatosNube(uid) {
             sessionStorage.setItem('welcomeShown', 'true');
         }
 
-    } catch (e) {
-        console.error("Error cargando de nube:", e);
-    }
+    } catch (e) { console.error("Error cargando nube:", e); }
 }
