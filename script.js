@@ -10,35 +10,40 @@ const criptos = [
 ];
 
 // ============================================
-// VARIABLES GLOBALES (Públicas para la nube)
+// VARIABLES GLOBALES (Con valores por defecto seguros)
 // ============================================
-var saldoUsuario = (typeof saldoUsuario !== 'undefined') ? saldoUsuario : 100000;
-var holdings = (typeof holdings !== 'undefined') ? holdings : {};
-var datosCriptos = (typeof datosCriptos !== 'undefined') ? datosCriptos : {};
-var historialOperaciones = (typeof historialOperaciones !== 'undefined') ? historialOperaciones : [];
+window.saldoUsuario = 100000; 
+window.holdings = {};
+window.datosCriptos = {};
+window.historialOperaciones = [];
 
-// Variables internas del simulador
+// Bandera de seguridad: Evita guardar si no hemos cargado
+let datosCargados = false; 
+
 let chartSimuladorInstance = null;
 let temporalidadActual = '30m';
 
-// Inicializar holdings si está vacío
-if (Object.keys(holdings).length === 0) {
-    criptos.forEach(cripto => {
-        holdings[cripto.id] = 0;
-    });
-}
+// Inicializar holdings a 0
+criptos.forEach(cripto => {
+    window.holdings[cripto.id] = 0;
+});
 
 // ============================================
-// CARGA Y GUARDADO DE DATOS
+// CARGA Y GUARDADO DE DATOS (CORREGIDO)
 // ============================================
 function guardarDatos() {
+    // SEGURIDAD: No guardar si aún no hemos intentado cargar (evita sobrescribir con ceros)
+    if (!datosCargados) return;
+
+    // 1. Guardar en LocalStorage (Siempre)
     localStorage.setItem('cryptosim-data', JSON.stringify({
-        saldo: saldoUsuario,
-        holdings: holdings,
-        datosCriptos: datosCriptos,
-        historialOperaciones: historialOperaciones
+        saldo: window.saldoUsuario,
+        holdings: window.holdings,
+        datosCriptos: window.datosCriptos,
+        historialOperaciones: window.historialOperaciones
     }));
     
+    // 2. Guardar en Nube (Si hay usuario)
     if (typeof guardarEnNube === 'function' && typeof usuarioActual !== 'undefined' && usuarioActual) {
         guardarEnNube();
     }
@@ -47,15 +52,41 @@ function guardarDatos() {
 }
 
 function cargarDatos() {
+    // Si hay usuario logueado, auth-config.js se encarga.
     if (typeof usuarioActual !== 'undefined' && usuarioActual) return;
 
-    const datos = JSON.parse(localStorage.getItem('cryptosim-data') || '{}');
-    if (datos.saldo !== undefined) {
-        saldoUsuario = datos.saldo;
-        if (Object.keys(holdings).length === 0) holdings = datos.holdings || holdings;
-        datosCriptos = datos.datosCriptos || {};
-        historialOperaciones = datos.historialOperaciones || [];
+    // Intentar leer LocalStorage
+    const datosRaw = localStorage.getItem('cryptosim-data');
+    
+    if (datosRaw) {
+        try {
+            const datos = JSON.parse(datosRaw);
+            
+            // Cargar saldo
+            window.saldoUsuario = (datos.saldo !== undefined) ? datos.saldo : 100000;
+            
+            // Cargar holdings (fusionando con los ceros iniciales para no perder claves)
+            const holdingsGuardados = datos.holdings || {};
+            window.holdings = { ...window.holdings, ...holdingsGuardados };
+            
+            window.datosCriptos = datos.datosCriptos || {};
+            window.historialOperaciones = datos.historialOperaciones || [];
+            
+            console.log("Datos locales cargados correctamente");
+        } catch (e) {
+            console.error("Error leyendo datos locales, reiniciando...", e);
+            window.saldoUsuario = 100000;
+        }
+    } else {
+        console.log("No hay datos locales. Iniciando cuenta nueva de invitado.");
+        window.saldoUsuario = 100000;
+        // Reiniciar holdings a 0
+        criptos.forEach(c => window.holdings[c.id] = 0);
     }
+
+    // Marcar como cargado para permitir guardado futuro
+    datosCargados = true;
+    actualizarSaldoTotalCuenta();
 }
 
 // ============================================
@@ -63,28 +94,26 @@ function cargarDatos() {
 // ============================================
 function resetearApp() {
     Swal.fire({
-        title: '¿Resetear Cuenta?',
-        text: "Se borrarán todos tus progresos en la NUBE y LOCALES. Volverás a $100,000.",
+        title: '¿Reiniciar Cuenta?',
+        text: "Se borrará todo tu progreso local y en la nube (si estás conectado).",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#0ecb81',
         cancelButtonColor: '#f6465d',
         confirmButtonText: 'Sí, borrar todo',
-        cancelButtonText: 'Cancelar',
-        background: '#181a20',
-        color: '#eaecef'
+        background: '#181a20', color: '#eaecef'
     }).then(async (result) => {
         if (result.isConfirmed) {
             Swal.fire({
                 title: 'Restableciendo...',
-                text: 'Sincronizando cambios con Google...',
-                allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading() },
                 background: '#181a20', color: '#eaecef'
             });
 
+            // 1. Borrar Local
             localStorage.removeItem('cryptosim-data');
             
+            // 2. Borrar Nube (Resetear a 100k)
             if (typeof db !== 'undefined' && typeof usuarioActual !== 'undefined' && usuarioActual) {
                 try {
                     await db.collection('usuarios').doc(usuarioActual.uid).set({
@@ -93,11 +122,10 @@ function resetearApp() {
                         historial: [],
                         ultimaActualizacion: new Date()
                     });
-                    console.log("Nube forzada a 100k");
-                } catch (error) { console.error(error); }
+                } catch (e) { console.error(e); }
             }
 
-            setTimeout(() => { location.reload(); }, 1500);
+            setTimeout(() => { location.reload(); }, 1000);
         }
     });
 }
@@ -117,15 +145,15 @@ function formatearDinero(cantidad) {
 function actualizarSaldoTotalCuenta() {
     let valorCriptos = 0;
     
-    if (typeof criptos !== 'undefined' && typeof holdings !== 'undefined') {
+    if (window.holdings) {
         criptos.forEach(c => {
-            const cantidad = holdings[c.id] || 0;
-            const precio = (datosCriptos && datosCriptos[c.id]) ? datosCriptos[c.id].precio : 0;
+            const cantidad = window.holdings[c.id] || 0;
+            const precio = (window.datosCriptos && window.datosCriptos[c.id]) ? window.datosCriptos[c.id].precio : 0;
             valorCriptos += cantidad * precio;
         });
     }
 
-    const saldoLiquido = parseFloat(saldoUsuario) || 0; 
+    const saldoLiquido = parseFloat(window.saldoUsuario) || 0; 
     const patrimonioTotal = saldoLiquido + valorCriptos;
 
     const elSaldoFijo = document.getElementById('saldo-cuenta-fijo');
@@ -139,6 +167,12 @@ function actualizarSaldoTotalCuenta() {
 
     const elSaldoSimulador = document.getElementById('saldo-disponible');
     if (elSaldoSimulador) elSaldoSimulador.textContent = formatearDinero(saldoLiquido);
+    
+    const elCartera = document.getElementById('cartera');
+    if (elCartera) elCartera.textContent = formatearDinero(patrimonioTotal);
+    
+    const elSaldoIndex = document.getElementById('saldo-disponible-texto');
+    if (elSaldoIndex) elSaldoIndex.textContent = formatearDinero(saldoLiquido);
 }
 
 function actualizarVisualmente() {
@@ -159,14 +193,20 @@ async function obtenerPreciosSimples() {
 
         criptos.forEach(cripto => {
             if (data[cripto.id]) {
-                datosCriptos[cripto.id] = {
+                window.datosCriptos[cripto.id] = {
                     precio: data[cripto.id].usd,
                     cambio24h: data[cripto.id].usd_24h_change
                 };
             }
         });
         
+        // Solo guardamos si ya cargamos datos previamente (para no sobrescribir con vacío)
+        if (datosCargados) {
+            guardarDatos();
+        }
+        
         actualizarSaldoTotalCuenta();
+        
         const selector = document.getElementById('selector-cripto');
         if (selector) actualizarVistaSimulador(selector.value);
         if (typeof actualizarTabla === 'function') actualizarTabla();
@@ -197,15 +237,10 @@ async function actualizarGraficoTrading(criptoId, intervalo) {
     const seriesData = await obtenerDatosBinance(criptoId, intervalo);
     if (!seriesData.length) return;
 
-    // === CAMBIO REALIZADO AQUÍ PARA EL PORCENTAJE ===
-    // Ahora tomamos la última vela (la actual) para calcular el cambio
     const velaActual = seriesData[seriesData.length - 1];
-    const precioApertura = velaActual.y[0]; // Precio Open de la vela actual
-    const precioActual = velaActual.y[3];   // Precio Close (actual) de la vela actual
-    
-    // Calculamos el porcentaje
+    const precioApertura = velaActual.y[0];
+    const precioActual = velaActual.y[3];
     const porcentajeCambio = ((precioActual - precioApertura) / precioApertura) * 100;
-    // ================================================
 
     const cambioEl = document.getElementById('cambio-header');
     if (cambioEl) {
@@ -246,26 +281,23 @@ function cambiarTemporalidadBinance(intervalo) {
 // ============================================
 async function actualizarVistaSimulador(criptoId) {
     const cripto = criptos.find(c => c.id === criptoId);
-    const datos = datosCriptos[criptoId];
+    const datos = window.datosCriptos[criptoId];
     if (!cripto || !datos) return;
 
-    // Actualizar Textos
     const symbolHoldEl = document.getElementById('simbolo-holding');
     if (symbolHoldEl) symbolHoldEl.textContent = cripto.simbolo;
 
     const holdingEl = document.getElementById('holdings-actual');
-    if(holdingEl) holdingEl.textContent = (holdings[criptoId] || 0).toFixed(6);
+    if(holdingEl) holdingEl.textContent = (window.holdings[criptoId] || 0).toFixed(6);
     
     const valorTotalEl = document.getElementById('valor-total');
-    if(valorTotalEl) valorTotalEl.textContent = formatearDinero((holdings[criptoId] || 0) * datos.precio);
+    if(valorTotalEl) valorTotalEl.textContent = formatearDinero((window.holdings[criptoId] || 0) * datos.precio);
     
-    // Inputs
     const inputPrecioCompra = document.getElementById('precio-compra');
     const inputPrecioVenta = document.getElementById('precio-venta');
     if (inputPrecioCompra) inputPrecioCompra.value = datos.precio;
     if (inputPrecioVenta) inputPrecioVenta.value = datos.precio;
 
-    // Botones
     const simCompra = document.getElementById('simbolo-compra');
     const simVenta = document.getElementById('simbolo-venta');
     if(simCompra) simCompra.textContent = cripto.simbolo;
@@ -281,16 +313,16 @@ function ejecutarCompraRapida() {
     
     if (!cantidad || cantidad <= 0) return Swal.fire('Error', 'Cantidad inválida', 'error');
     
-    let costo = cantidad * datosCriptos[id].precio;
-    if (costo > saldoUsuario && (costo - saldoUsuario) < 0.01) costo = saldoUsuario;
-    if (costo > saldoUsuario) return Swal.fire('Error', 'Saldo insuficiente', 'error');
+    let costo = cantidad * window.datosCriptos[id].precio;
+    if (costo > window.saldoUsuario && (costo - window.saldoUsuario) < 0.01) costo = window.saldoUsuario;
+    if (costo > window.saldoUsuario) return Swal.fire('Error', 'Saldo insuficiente', 'error');
 
-    saldoUsuario -= costo;
-    if (saldoUsuario < 0) saldoUsuario = 0; 
+    window.saldoUsuario -= costo;
+    if (window.saldoUsuario < 0) window.saldoUsuario = 0; 
     
-    holdings[id] = (holdings[id] || 0) + cantidad;
+    window.holdings[id] = (window.holdings[id] || 0) + cantidad;
     
-    registrarOperacion('COMPRA', id, datosCriptos[id].precio, cantidad);
+    registrarOperacion('COMPRA', id, window.datosCriptos[id].precio, cantidad);
     finalizarOperacion(id, 'Compra exitosa');
 }
 
@@ -300,16 +332,16 @@ function ejecutarVentaRapida() {
     
     if (!cantidad || cantidad <= 0) return Swal.fire('Error', 'Cantidad inválida', 'error');
 
-    const misHoldings = holdings[id] || 0;
+    const misHoldings = window.holdings[id] || 0;
     if (cantidad > misHoldings && (cantidad - misHoldings) < 0.000001) cantidad = misHoldings;
     if (cantidad > misHoldings) return Swal.fire('Error', 'No tienes suficientes criptos', 'error');
 
-    const ganancia = cantidad * datosCriptos[id].precio;
-    saldoUsuario += ganancia;
-    holdings[id] -= cantidad;
-    if (holdings[id] < 0) holdings[id] = 0;
+    const ganancia = cantidad * window.datosCriptos[id].precio;
+    window.saldoUsuario += ganancia;
+    window.holdings[id] -= cantidad;
+    if (window.holdings[id] < 0) window.holdings[id] = 0;
 
-    registrarOperacion('VENTA', id, datosCriptos[id].precio, cantidad);
+    registrarOperacion('VENTA', id, window.datosCriptos[id].precio, cantidad);
     finalizarOperacion(id, 'Venta exitosa');
 }
 
@@ -329,31 +361,24 @@ function finalizarOperacion(id, mensaje) {
 
 function registrarOperacion(tipo, criptoId, precio, cantidad) {
     const cripto = criptos.find(c => c.id === criptoId);
-    historialOperaciones.unshift({
+    window.historialOperaciones.unshift({
         tipo: tipo, simbolo: cripto.simbolo, precio: precio, cantidad: cantidad,
         total: precio * cantidad, hora: new Date().toLocaleTimeString()
     });
-    if (historialOperaciones.length > 50) historialOperaciones.pop();
+    if (window.historialOperaciones.length > 50) window.historialOperaciones.pop();
 }
 
-// ============================================
-// RENDERIZADO DE HISTORIAL (FILTRADO)
-// ============================================
 function renderizarHistorialIzquierdo() {
     const contenedor = document.getElementById('historial-panel-izquierdo');
     if (!contenedor) return;
 
-    // 1. Averiguar qué cripto estamos viendo
     const selector = document.getElementById('selector-cripto');
     const criptoIdActual = selector ? selector.value : null;
-    
     const objCripto = criptos.find(c => c.id === criptoIdActual);
     const simboloActual = objCripto ? objCripto.simbolo : '';
 
-    // 2. Filtrar la lista
-    const operacionesFiltradas = historialOperaciones.filter(op => op.simbolo === simboloActual);
+    const operacionesFiltradas = window.historialOperaciones.filter(op => op.simbolo === simboloActual);
 
-    // 3. Mostrar
     if (operacionesFiltradas.length === 0) {
         contenedor.innerHTML = `<p class="text-muted text-center small mt-4">Sin operaciones de ${simboloActual}</p>`;
         return;
@@ -376,8 +401,10 @@ function renderizarHistorialIzquierdo() {
 // INICIALIZACIÓN
 // ============================================
 window.addEventListener('load', async function() {
+    // 1. Cargar datos locales primero
     cargarDatos();
     
+    // 2. Configurar selectores
     const selector = document.getElementById('selector-cripto');
     if (selector) {
         selector.innerHTML = criptos.map(c => 
@@ -396,6 +423,7 @@ window.addEventListener('load', async function() {
         });
     }
 
+    // 3. Obtener precios
     await obtenerPreciosSimples();
     
     if (selector) {
@@ -403,6 +431,7 @@ window.addEventListener('load', async function() {
         actualizarGraficoTrading(selector.value, temporalidadActual);
     }
     
+    // 4. Listeners inputs
     ['compra', 'venta'].forEach(tipo => {
         const inputCantidad = document.getElementById('cantidad-' + tipo);
         const inputTotal = document.getElementById('total-' + tipo);
@@ -410,7 +439,7 @@ window.addEventListener('load', async function() {
         
         inputCantidad.addEventListener('input', function() {
             const id = document.getElementById('selector-cripto').value;
-            const precio = datosCriptos[id]?.precio || 0;
+            const precio = window.datosCriptos[id]?.precio || 0;
             let cantidad = parseFloat(this.value);
             if (isNaN(cantidad) || cantidad < 0) cantidad = 0;
             const total = (cantidad * precio);
@@ -419,7 +448,7 @@ window.addEventListener('load', async function() {
         
         inputTotal.addEventListener('input', function() {
             const id = document.getElementById('selector-cripto').value;
-            const precio = datosCriptos[id]?.precio || 0;
+            const precio = window.datosCriptos[id]?.precio || 0;
             let total = parseFloat(this.value);
             if (isNaN(total) || total < 0) total = 0;
             if (precio > 0) inputCantidad.value = (total / precio).toFixed(8);
