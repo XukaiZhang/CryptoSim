@@ -1,0 +1,170 @@
+/* ============================================
+   ESTILOS DE CONTACTO (Dark Theme)
+   ============================================ */
+
+/* Tarjetas base (similar a profile-card) */
+.contact-info-card,
+.contact-form-card {
+    background: #181a20;
+    border: 1px solid #2b3139;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Panel de Información (Izquierda) --- */
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.icon-box {
+    width: 45px;
+    height: 45px;
+    background: rgba(252, 213, 53, 0.1); /* Amarillo transparente */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fcd535;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* Redes Sociales */
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2b3139;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #848e9c;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+    background: #fcd535;
+    color: #000;
+    transform: translateY(-3px);
+}
+
+/* --- Formulario (Derecha) --- */
+
+.form-group-dark {
+    margin-bottom: 5px;
+}
+
+.form-group-dark label {
+    display: block;
+    color: #848e9c;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+/* Inputs estilo Exchange */
+.form-control-dark {
+    width: 100%;
+    background: #2b3139;
+    border: 1px solid #2b3139;
+    color: #eaecef;
+    padding: 12px 15px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.form-control-dark:focus {
+    outline: none;
+    border-color: #fcd535;
+    background: #1e2329; /* Un poco más oscuro al hacer foco */
+    box-shadow: 0 0 0 1px rgba(252, 213, 53, 0.5);
+}
+
+.form-control-dark::placeholder {
+    color: #5e6673;
+}
+
+/* Botón de Enviar (Amarillo Binance) */
+.btn-submit-contact {
+    background: #fcd535;
+    color: #000;
+    border: none;
+    padding: 12px 30px;
+    width: 100%;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.btn-submit-contact:hover {
+    background: #ffe066; /* Un amarillo un poco más claro */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(252, 213, 53, 0.3);
+}
+
+.btn-submit-contact:active {
+    transform: translateY(0);
+}
+
+.btn-submit-contact:disabled {
+    background: #4a4a4a;
+    color: #848e9c;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .contact-info-card,
+    .contact-form-card {
+        padding: 20px;
+    }
+    
+    .social-links {
+        justify-content: center;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+}
+
+/* ============================================
+   FIX: FOOTER PEGADO AL FONDO (Sticky Footer)
+   ============================================ */
+
+/* 1. Convertimos el cuerpo en una columna flexible */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Fuerza al body a tener al menos el alto de la pantalla */
+}
+
+/* 2. Hacemos que el contenedor principal crezca */
+/* Esto busca el div que tiene las clases container, mt-5 y mb-5 */
+.container.mt-5.mb-5 {
+    flex: 1; 
+    
+    /* Opcional: Si quieres que el formulario quede perfectamente centrado verticalmente */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}

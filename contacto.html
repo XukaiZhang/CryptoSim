@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - CryptoSim</title>
+    <link rel="icon" type="image/png" href="bitcoin.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="styles.css">
+    
+    <link rel="stylesheet" href="contacto.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="index.html"><i class="fa-brands fa-bitcoin"></i> CryptoSim</a>
+            <a class="navbar-brand" href="simulador.html"><i class="fa-solid fa-magnifying-glass-chart"></i> Simulador</a>
+            <a class="navbar-brand" href="cuenta.html"><i class="fa-solid fa-user"></i> Cuenta</a>
+            <a class="navbar-brand" href="contacto.html"><i class="fa-solid fa-phone"></i> Contacto</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5 mb-5">
+        
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold text-white">Contáctanos</h1>
+            <p class="text-muted">Estamos aquí para ayudarte con tus dudas sobre el simulador.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            
+            <div class="col-lg-4 col-md-5">
+                <div class="contact-info-card h-100">
+                    <h4 class="mb-4 text-white">Información</h4>
+                    
+                    <div class="info-item">
+                        <div class="icon-box">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Email de Soporte</span>
+                            <span class="text-white">soporte@cryptosim.com</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Oficinas</span>
+                            <span class="text-white">Valencia, España</span>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="icon-box">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <span class="d-block text-muted small">Horario</span>
+                            <span class="text-white">Lunes - Viernes: 9am - 6pm</span>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <h5 class="text-white mb-3">Redes Sociales</h5>
+                    <div class="social-links">
+                        <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-discord"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 col-md-7">
+                <div class="contact-form-card h-100">
+                    <h4 class="mb-4 text-white">Envíanos un mensaje</h4>
+                    
+                    <form id="contactForm" onsubmit="enviarFormulario(event)">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group-dark">
+                                    <label>Nombre</label>
+                                    <input type="text" class="form-control-dark" placeholder="Tu nombre" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-dark">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control-dark" placeholder="nombre@ejemplo.com" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group-dark">
+                                    <label>Asunto</label>
+                                    <select class="form-control-dark">
+                                        <option>Soporte Técnico</option>
+                                        <option>Reportar un Bug</option>
+                                        <option>Sugerencias</option>
+                                        <option>Otros</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group-dark">
+                                    <label>Mensaje</label>
+                                    <textarea class="form-control-dark" rows="5" placeholder="¿En qué podemos ayudarte?" required></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn-submit-contact">
+                                    <i class="fas fa-paper-plane me-2"></i> Enviar Mensaje
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 mt-5">
+        <p>CryptoSim &copy; 2025 - Proyecto Educativo</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.12/sweetalert2.all.min.js"></script>
+    
+    <script>
+        function enviarFormulario(e) {
+            e.preventDefault();
+            
+            // Simulación de envío
+            let btn = document.querySelector('.btn-submit-contact');
+            let originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Mensaje Enviado!',
+                    text: 'Nos pondremos en contacto contigo pronto.',
+                    background: '#181a20',
+                    color: '#eaecef',
+                    confirmButtonColor: '#fcd535',
+                    confirmButtonText: '<span style="color:#000; font-weight:bold;">Entendido</span>'
+                });
+                
+                document.getElementById('contactForm').reset();
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
