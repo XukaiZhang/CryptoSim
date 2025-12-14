@@ -1,5 +1,5 @@
 /* ============================================
-   ESTILOS DE CUENTA (PERFIL)
+   ESTILOS DE CUENTA (PERFIL - RESPONSIVE)
    ============================================ */
 
 .profile-card {
@@ -8,6 +8,7 @@
     border-radius: 12px;
     padding: 30px;
     text-align: center;
+    height: 100%; /* Para que coincida con la altura si están lado a lado */
 }
 
 .profile-img {
@@ -27,8 +28,10 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    border: 1px solid #2b3139;
 }
 
+/* Botón Google Estilizado */
 .google-btn {
     background: #fff;
     color: #333;
@@ -37,9 +40,48 @@
     border-radius: 50px;
     border: none;
     transition: all 0.3s;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .google-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(255,255,255, 0.2);
+}
+
+/* Tipografía responsive */
+#patrimonio-cuenta-live {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    word-break: break-all; /* Evita que números largos rompan el diseño */
+}
+
+/* ============================================
+   MEDIA QUERIES PARA CUENTA
+   ============================================ */
+@media (max-width: 768px) {
+    .profile-card {
+        margin-bottom: 20px;
+        padding: 20px;
+    }
+
+    .wallet-card {
+        height: auto; /* En móvil la altura es automática */
+        padding: 25px 20px;
+        min-height: 250px;
+    }
+
+    .wallet-card h1 {
+        font-size: 2.5rem; /* Reducir tamaño del saldo en móvil */
+    }
+
+    /* Botones de ingresar/retirar en columna en móvil */
+    .wallet-card .d-flex {
+        flex-direction: column;
+    }
+    
+    .wallet-card button {
+        width: 100%;
+    }
 }

@@ -1,8 +1,8 @@
 /* ============================================
-   ESTILOS DE CONTACTO (Dark Theme)
+   ESTILOS DE CONTACTO (RESPONSIVE)
    ============================================ */
 
-/* Tarjetas base (similar a profile-card) */
+/* Tarjetas base */
 .contact-info-card,
 .contact-form-card {
     background: #181a20;
@@ -10,10 +10,10 @@
     border-radius: 12px;
     padding: 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    height: 100%; /* Igualar alturas en desktop */
 }
 
 /* --- Panel de Información (Izquierda) --- */
-
 .info-item {
     display: flex;
     align-items: center;
@@ -24,7 +24,7 @@
 .icon-box {
     width: 45px;
     height: 45px;
-    background: rgba(252, 213, 53, 0.1); /* Amarillo transparente */
+    background: rgba(252, 213, 53, 0.1); 
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -38,6 +38,7 @@
 .social-links {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .social-btn {
@@ -60,9 +61,8 @@
 }
 
 /* --- Formulario (Derecha) --- */
-
 .form-group-dark {
-    margin-bottom: 5px;
+    margin-bottom: 15px;
 }
 
 .form-group-dark label {
@@ -73,7 +73,6 @@
     font-weight: 500;
 }
 
-/* Inputs estilo Exchange */
 .form-control-dark {
     width: 100%;
     background: #2b3139;
@@ -88,15 +87,10 @@
 .form-control-dark:focus {
     outline: none;
     border-color: #fcd535;
-    background: #1e2329; /* Un poco más oscuro al hacer foco */
+    background: #1e2329;
     box-shadow: 0 0 0 1px rgba(252, 213, 53, 0.5);
 }
 
-.form-control-dark::placeholder {
-    color: #5e6673;
-}
-
-/* Botón de Enviar (Amarillo Binance) */
 .btn-submit-contact {
     background: #fcd535;
     color: #000;
@@ -112,24 +106,41 @@
 }
 
 .btn-submit-contact:hover {
-    background: #ffe066; /* Un amarillo un poco más claro */
+    background: #ffe066;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(252, 213, 53, 0.3);
-}
-
-.btn-submit-contact:active {
-    transform: translateY(0);
 }
 
 .btn-submit-contact:disabled {
     background: #4a4a4a;
     color: #848e9c;
     cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
 }
 
-/* --- Responsive --- */
+/* ============================================
+   FIX: FOOTER PEGADO AL FONDO
+   ============================================ */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container.mt-5.mb-5 {
+    flex: 1; 
+}
+
+/* ============================================
+   MEDIA QUERIES CONTACTO
+   ============================================ */
+@media (max-width: 991px) {
+    /* En tablets verticales y móviles, quitar altura 100% para que no se estiren */
+    .contact-info-card,
+    .contact-form-card {
+        height: auto;
+        margin-bottom: 20px;
+    }
+}
+
 @media (max-width: 768px) {
     .contact-info-card,
     .contact-form-card {
@@ -137,34 +148,12 @@
     }
     
     .social-links {
-        justify-content: center;
+        justify-content: flex-start;
     }
     
+    /* En móvil, los iconos y textos alineados a la izquierda se ven mejor */
     .info-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
+        flex-direction: row; 
+        text-align: left;
     }
-}
-
-/* ============================================
-   FIX: FOOTER PEGADO AL FONDO (Sticky Footer)
-   ============================================ */
-
-/* 1. Convertimos el cuerpo en una columna flexible */
-body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Fuerza al body a tener al menos el alto de la pantalla */
-}
-
-/* 2. Hacemos que el contenedor principal crezca */
-/* Esto busca el div que tiene las clases container, mt-5 y mb-5 */
-.container.mt-5.mb-5 {
-    flex: 1; 
-    
-    /* Opcional: Si quieres que el formulario quede perfectamente centrado verticalmente */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
