@@ -18,10 +18,20 @@
 
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="index.html"><i class="fa-brands fa-bitcoin"></i> CryptoSim</a>
-            <a class="navbar-brand" href="simulador.html"><i class="fa-solid fa-magnifying-glass-chart"></i> Simulador</a>
-            <a class="navbar-brand" href="cuenta.html"><i class="fa-solid fa-user"></i> Cuenta</a>
-            <a class="navbar-brand" href="contacto.html"><i class="fa-solid fa-phone"></i> Contacto</a>
+            <a class="logo-brand">
+                <i class="fa-brands fa-bitcoin"></i> CryptoSim
+            </a>
+
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="nav-links" id="nav-menu">
+                <a class="nav-item" href="index.html"><i class="fa-brands fa-bitcoin"></i> Inicio</a>
+                <a class="nav-item" href="simulador.html"><i class="fa-solid fa-magnifying-glass-chart"></i> Simulador</a>
+                <a class="nav-item" href="cuenta.html"><i class="fa-solid fa-user"></i> Cuenta</a>
+                <a class="nav-item" href="contacto.html"><i class="fa-solid fa-phone"></i> Contacto</a>
+            </div>
         </div>
     </nav>
 
@@ -29,7 +39,7 @@
         
         <div class="text-center mb-5">
             <h1 class="display-5 fw-bold text-white">Contáctanos</h1>
-            <p class="text-muted">Estamos aquí para ayudarte con tus dudas sobre el simulador.</p>
+            <p class="text-white">Estamos aquí para ayudarte con tus dudas sobre el simulador.</p>
         </div>
 
         <div class="row g-4 justify-content-center">
@@ -43,8 +53,10 @@
                             <i class="fas fa-envelope"></i>
                         </div>
                         <div>
-                            <span class="d-block text-muted small">Email de Soporte</span>
-                            <span class="text-white">soporte@cryptosim.com</span>
+                            <div class="form-group-dark">
+                                    <label>Email de Soporte</label>
+                                    <span class="text-white">soporte@cryptosim.com</span>
+                            </div>
                         </div>
                     </div>
 
@@ -53,8 +65,10 @@
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div>
-                            <span class="d-block text-muted small">Oficinas</span>
-                            <span class="text-white">Valencia, España</span>
+                            <div class="form-group-dark">
+                                    <label>Oficinas</label>
+                                    <span class="text-white">Valencia, España</span>
+                            </div>
                         </div>
                     </div>
 
@@ -63,8 +77,10 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div>
-                            <span class="d-block text-muted small">Horario</span>
-                            <span class="text-white">Lunes - Viernes: 9am - 6pm</span>
+                            <div class="form-group-dark">
+                                    <label>Horario</label>
+                                    <span class="text-white">Lunes - Viernes: 9am - 6pm</span>
+                            </div>
                         </div>
                     </div>
 
@@ -161,5 +177,13 @@
             }, 1500);
         }
     </script>
+
+    <script>
+    function toggleMenu() {
+        const menu = document.getElementById('nav-menu');
+        menu.classList.toggle('active');
+    }
+    </script>
+    
 </body>
 </html>

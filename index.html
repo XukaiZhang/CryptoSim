@@ -22,10 +22,20 @@
     <!-- Barra de navegación -->
     <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="index.html"><i class="fa-brands fa-bitcoin"></i> CryptoSim</a>
-            <a class="navbar-brand" href="simulador.html"><i class="fa-solid fa-magnifying-glass-chart"></i> Simulador</a>
-            <a class="navbar-brand" href="cuenta.html"><i class="fa-solid fa-user"></i> Cuenta</a>
-            <a class="navbar-brand" href="contacto.html"><i class="fa-solid fa-phone"></i> Contacto</a>
+            <a class="logo-brand">
+                <i class="fa-brands fa-bitcoin"></i> CryptoSim
+            </a>
+
+            <button class="menu-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="nav-links" id="nav-menu">
+                <a class="nav-item" href="index.html"><i class="fa-brands fa-bitcoin"></i> Inicio</a>
+                <a class="nav-item" href="simulador.html"><i class="fa-solid fa-magnifying-glass-chart"></i> Simulador</a>
+                <a class="nav-item" href="cuenta.html"><i class="fa-solid fa-user"></i> Cuenta</a>
+                <a class="nav-item" href="contacto.html"><i class="fa-solid fa-phone"></i> Contacto</a>
+            </div>
         </div>
     </nav>
 
@@ -119,6 +129,13 @@
     </script>
 
     <script src="auth-config.js"></script>
+
+    <script>
+    function toggleMenu() {
+        const menu = document.getElementById('nav-menu');
+        menu.classList.toggle('active');
+    }
+    </script>
 
 </body>
 </html>

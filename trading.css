@@ -36,35 +36,90 @@ body {
 .navbar .container {
     display: flex;
     align-items: center;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Permite que el menú baje al abrirse */
 }
 
-/* --- CORRECCIÓN AQUÍ: OCULTAR BARRA DEL NAVBAR --- */
-.navbar .container::-webkit-scrollbar {
-    height: 0px; /* Altura 0 para que sea invisible */
-    background: transparent;
+/* LOGO */
+.logo-brand {
+    color: #fcd535 !important;
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
 }
-/* ------------------------------------------------ */
+.logo-brand i { margin-right: 10px; font-size: 1.8rem; }
 
-.navbar-brand {
-    color: #eaecef !important;
+/* LINKS (Escritorio) */
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.nav-item {
+    color: #eaecef;
+    text-decoration: none;
     font-weight: 600;
     font-size: 1rem;
-    transition: all 0.2s;
-    text-decoration: none;
-    margin-right: 25px;
-    white-space: nowrap;
-    flex-shrink: 0;
+    transition: color 0.2s;
+}
+.nav-item:hover { color: #fcd535; }
+
+/* BOTÓN HAMBURGUESA (Oculto por defecto en PC) */
+.menu-toggle {
+    display: none; 
+    background: transparent;
+    border: none;
+    color: #eaecef;
+    font-size: 1.5rem;
+    cursor: pointer;
 }
 
-.navbar-brand:hover {
-    color: #fcd535 !important;
+/* ============================================
+   MEDIA QUERY: MÓVIL (Menor a 768px)
+   ============================================ */
+@media (max-width: 768px) {
+    /* Mostrar el botón hamburguesa */
+    .menu-toggle {
+        display: block; 
+    }
+
+    /* Ocultar los links por defecto */
+    .nav-links {
+        display: none; 
+        width: 100%; /* Ocupar todo el ancho al bajar */
+        flex-direction: column;
+        text-align: center;
+        padding-top: 20px;
+        gap: 15px;
+        border-top: 1px solid #2b3139;
+        margin-top: 15px;
+    }
+
+    /* Clase para MOSTRAR el menú cuando se activa */
+    .nav-links.active {
+        display: flex;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    .nav-item {
+        display: block;
+        padding: 10px;
+        width: 100%;
+    }
+    
+    .nav-item:hover {
+        background: #2b3139;
+        border-radius: 4px;
+    }
 }
 
-.navbar-brand i {
-    margin-right: 5px;
+/* Animación suave de bajada */
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 
